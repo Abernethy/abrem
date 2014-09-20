@@ -1,0 +1,495 @@
+%% LyX 2.0.7 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[american,english,noae]{article}
+\usepackage{lmodern}
+\renewcommand{\sfdefault}{lmss}
+\renewcommand{\ttdefault}{lmtt}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+<<echo=F>>=
+  if(exists(".orig.enc")) options(encoding = .orig.enc)
+@
+
+\makeatother
+
+\usepackage{babel}
+\begin{document}
+
+
+
+
+<<setup,echo=FALSE>>=
+invisible(library(abrem))
+invisible(options.abrem(sub=paste0("(plot created with abrem ",packageVersion("abrem"),")")))
+#invisible(options.abrem(mar=c(4,4,4,1)))
+@
+
+
+
+
+\title{Using abrem}
+
+
+\author{David Silkworth, Jurgen Symynck}
+\maketitle
+\begin{abstract}
+Functions of the abrem package provide an application layer for entering
+life data, selecting various options for the treatment of that data,
+generation of a graphical display, and presenting meaningful statistical
+output in a legend. This application layer is executed in the R console,
+based on scripts that are likely prepared in a separate editor. 
+
+Package abrem makes use of the R object model to prepare objects for
+plotted output. Various options are handled to extend the object with
+parametric fitting, preparation of confidence interval bounds, and
+preparation of the graphical output.
+\end{abstract}
+
+\section{Using of abrem for default two--parameter Weibull plotting}
+
+For a rapid Weibull two-parameter fit and display, an object is constructed
+using the \texttt{Abrem()} function on the data of interest. Then
+a fit element is added using function \texttt{abrem.fit()}. This object
+can then be plotted with the \texttt{.abrem} method of the standard
+R function \texttt{plot()}. To demonstrate this simple use, the initial
+problem sets from Chapter 2 of \textquotedblleft{}The New Weibull
+Handbook, Fifth edition\textquotedblright{} \cite{abernethy2008new}are
+shown below. For each example just copy the code script and paste
+it into the R console to observe the graphical output in full size.
+
+\begin{center}
+<<problem2-1,echo=TRUE,fig=TRUE,tidy=FALSE>>=
+library(abrem)
+Prob2.1Data   <- c(150,85,250,240,135,200,190)
+    # data from Problem 2.1 from the Handbook
+Prob2.1Object <- Abrem(Prob2.1Data)
+Prob2.1Object <- abrem.fit(Prob2.1Object)
+plot(Prob2.1Object, main="Problem 2-1")
+@
+\par\end{center}
+
+This is a first, simple, plotting example. In the script above the
+first line merely assures that the abrem package and all its dependencies
+have been loaded in this R session.
+
+The second line places the example data into a numeric vector.
+
+The third line uses function \texttt{Abrem()} to construct an abrem
+object from the data. The Abrem function has been designed for some
+flexibility of data input. In this case, a single numeric vector has
+been passed as the first argument, so it is taken to be a set of complete
+failure times. This initial object could have been plotted at this
+point and one would observe the points, only, plotted on the default
+canvas for a Weibull analysis. By default the fitting distribution
+is \texttt{``weibull2p\textquotedblright{}}, and the plotting positions
+have been determined using the beta binomial function for most technically
+accurate median rank positions. These positions are minimally different
+than the Benard approximation method used in the \textquotedblleft{}Handbook\textquotedblright{}
+text.
+
+The fourth line of the script adds a fit of the data into the abrem
+object by applying the\texttt{ abrem.fit()} function on the object,
+extending it. By default this fit is by rank regression using the
+preferred X--on--Y regression convention.
+
+Finally, the fifth line plots the object based on the exposed elements
+of the abrem object, which has been provided as a first argument to
+the \texttt{plot()} function. In this case the main title of the chart
+has been specified. Upon execution of this line an R Graphics Device
+window is opened with the resulting display.
+
+
+\subsection*{Now consider example Problem 2--2 from the text}
+
+\begin{center}
+<<problem2-2,echo=TRUE,fig=TRUE,tidy=F>>=
+library(abrem)
+serials   <- c(831, 832, 833, 834, 835, 836, 837, 838)
+times     <- c(  9,   6,14.6, 1.1,  20,   7,  65,   8)
+events    <- c(  1,   1,   0,   1,   1,   0,   1,   0)
+Prob2.2Data <- data.frame(serial=serials,time=times,event=events)
+Prob2.2Object <- Abrem(Prob2.2Data, col="red")
+Prob2.2Object <- abrem.fit(Prob2.2Object)
+plot(Prob2.2Object, main="Problem 2-2")
+@
+\par\end{center}
+
+In the script above the data is entered into three vectors in the
+exact order as presented in a table in the text. These vectors are
+used to create a dataframe to present the data with specifically named
+fields of \texttt{``time''} and \texttt{``event''}. Note that
+the event vector is made up of 1's for failures and 0's for suspensions.
+The \texttt{Abrem()} function will accept this format as a first argument.
+It will parse the dataframe for the two specifically named fields
+as shown singular and all lower case. Additional information that
+may be stored in the dataframe is not used on the abrem object that
+will be created by function \texttt{Abrem()}. In this example some
+color has been added to the object. A default rank regression fit
+is then added to the object as in the previous example. Finally the
+plot is executed providing a new main title for the chart.
+
+
+\subsection*{Placing more than one fitted object on one chart.}
+
+\begin{center}
+<<block3,echo=TRUE,fig=TRUE,tidy=FALSE>>=
+library(abrem)
+Prob2.1Data	 <- c(150,85,250,240,135,200,190)
+Prob2.1Object   <- Abrem(Prob2.1Data, col="blue",
+    label="Problem 2-1")
+Prob2.1Object   <- abrem.fit(Prob2.1Object)
+P2.2Failures    <- c(9.0,6.0,1.1,20.0,65.0)
+P2.2Suspensions <- c(14.6,7.0,8.0)
+Prob2.2Object   <- Abrem(fail=P2.2Failures,
+    susp=P2.2Suspensions, col="red", label="Problem 2-2")
+Prob2.2Object   <- abrem.fit(Prob2.2Object)
+plot.abrem(list(Prob2.2Object, Prob2.1Object),
+    main="Chapter 2 Problems")
+@
+\par\end{center}
+
+In this script some color is added to each problem object and identifying
+labels are added for the legend. The data for the second problem has
+been prepared for an alternate input means for object initialization
+by the \texttt{Abrem()} function. By this convention two vectors of
+time values are prepared; one for complete failures, the other for
+suspension data. These two vectors must then be assigned to the specifically
+named arguments \texttt{``fail''} and \texttt{``susp''} in the
+\texttt{Abrem()} function call.
+
+The procedure for placing two or more abrem objects into a chart is
+to explicitly pass the objects in a list to the \texttt{.abrem} method
+of the generic \texttt{plot()} fucntion: this is a special case for
+plotting abrem objects since the generic R \texttt{plot()} function
+cannot recognize such a list of abrem objects.
+
+
+\subsection*{Adding confidence intervals for B--lives to abrem objects }
+
+Continuing a convention of recalculating examples from our reference
+text, two examples are provided below plotting recalculations for
+Figure C-1 and Figure 7-5 (from Section 7.5.1) from the \textquotedblleft{}New
+Weibull Handbook, Fifth Edition\textquotedblright{} below:
+
+\begin{center}
+<<block4,echo=TRUE,fig=TRUE,tidy=FALSE>>=
+library(abrem)
+## Figure C-1
+AppBCData <- data.frame(
+    time =c(1500, 1750, 2250, 4000, 4300, 5000, 7000),
+    event=c(   1,    0,    1,    1,    1,    0,    1))
+FigC.1 <- Abrem(AppBCData, pch=2)
+FigC.1 <- abrem.fit(FigC.1, col="blue")
+FigC.1 <- abrem.conf(FigC.1, col="darkgreen")
+FigC.1 <- abrem.conf(FigC.1, method.conf.blives="bbb",
+              lty=2, lwd=1, col="black")
+plot(FigC.1, xlim=c(1,5e5), ylim=c(.01,.90),
+	main="Figure C-1 with added Beta Binomial Bounds")
+@
+\par\end{center}
+
+The Figure C-1 script demonstrates graphic control over the individual
+elements of a single abrem object. During the object construction
+using \texttt{Abrem()} the point character, \texttt{pch}, is set to
+a value of \texttt{2} to generate upright triangles. By entering \texttt{?points}
+in the R console a help page will appear in which all of the \texttt{pch}
+options are defined. As the default fit element is created it is assigned
+the color blue. As the default MCpivotal confidence bounds are created
+they are assigned a dark green color. Then, as a second confidence
+interval element is added as the beta binomial bounds, the line type,
+\texttt{lty}, and line width, lwd, are customized according to options
+that can be explored by entering \texttt{?par} in the R console. So,
+it is demonstrated that each abrem object can have multiple elements
+and each of those elements can be graphically controlled.
+
+A final observation can be noted in that the ranges for X and Y axes
+for Figure C-1 were altered to provide a more pleasing presentation
+than default code would have given.
+
+
+\subsubsection*{Comparing datasets}
+
+\begin{center}
+
+\par\end{center}
+
+\begin{center}
+<<block5,echo=TRUE,fig=TRUE,tidy=FALSE>>=
+library(abrem)
+## Figure 7-5 (Section 7.5.1)
+#set.seed(1234)
+Obj1 <- params.to.ob(dist="weibull",beta=2.09,eta=985.8,n=8,ppos="beta")
+Obj2 <- params.to.ob(dist="weibull",beta=3.666,eta=1984,n=8,ppos="beta")
+Obj1 <- abrem.conf(abrem.fit(Abrem(Obj1, pch=2,
+    col="orange")), unrel=0.1)
+Obj2 <- abrem.conf(abrem.fit(Abrem(Obj2, pch=6,
+    col="forestgreen")), unrel=0.1)
+plot.abrem(list(Obj1,Obj2),
+    main="Figure 7-5: Compare Data Sets at B10 with 95% Confidence\n")
+@
+\par\end{center}
+
+
+
+The script for Figure 7-5 begins with a seed setting establising a
+uniform state for the random number generator (RNG) as the function
+is called. This setting assures consistent numeric output of the Monte
+Carlo output regardless of any previous RNG acctivity. The next two
+lines establish exact observation times that will result in the given
+Weibull parameter pairs after fitting, using abrem's \texttt{params.to.ob()}
+function.The latter is a wrapper for R's Weibull quantile function
+\texttt{qweibull()} that returns the time value for a given Weibull
+parameter pair at a given unreliability percentage. 
+
+A nested approach was used to expand each object with all desired
+elements and their graphical features. Notice that the B-lives output
+was limited to a single report at B10 for this case. The \texttt{unrel}
+option could have been set at any point in the construction of the
+objects in this case; association with the \texttt{abrem.conf()} just
+seemed most appropriate. Finally, as seen before, these objects were
+passed in a list to the object method \texttt{plot.abrem()} with a
+definition for the main chart title.
+
+The point of this figure is to demonstrate a method of determining
+statistical distinctness of two data sets similar to a method presented
+in 1994 by Jim Lempke of Ford Motor Company. It is hard to see the
+distinction that exists at the B10 level (10\% unreliability) between
+the upper bound of the orange set and the lower bound of the green
+set by the graph itself. It is hard to see this in the book also.
+However, the B--lives display in the legend clearly shows the 95\%
+upper-bound B10 value to be \Sexpr{signif(subset(Obj1$fit[[1]]$conf$blives[[1]]$bounds,signif(unrel)==0.1)$upper,4)}\texttt{
+}for the orange set, while the 95\% lower-bound B10 value is \Sexpr{signif(subset(Obj2$fit[[1]]$conf$blives[[1]]$bounds,signif(unrel)==0.1)$lower,4)}
+\texttt{}for the green set. Since the confidence limit, \texttt{cl},has
+been defined as a 90\% double--sided interval, the single--sided confidence
+levels are each 95\%.
+
+At this time preparation of pivotal confidence interval bounds for
+data sets with suspensions is a subject of some on--going study. The
+user is cautioned that bounds and B-Life determinations prepared for
+such abrem objects may be different than other software presentations.
+An open invitation is made here for participation in this study (according
+to \cite[p. 218]{lawless_2003}, the applied techniques should be
+sufficient for arbitrary censoring schemes when the sample size is
+'moderately large').
+
+
+\subsection*{Models beyond two--parameter Weibull}
+
+One of the few lognormal data examples from the text is provided in
+Figure 3-13.With the appropriate data entered into R as a vector
+named \texttt{F3.13da} the following script can be run to generate
+the lognomal fit on the log-log canvas for depicting linear regression.
+
+\begin{center}
+<<block6,echo=TRUE,fig=TRUE,tidy=FALSE>>=
+library(abrem)
+F3.13da <- c(3.46623, 3.732711, 4.052996, 4.628703, 4.8157, 5.84517,
+    5.888313,5.892967, 8.168362, 10.02799, 10.06062, 10.49785,
+    11.11493, 11.87369, 12.21122, 12.51854, 12.91357, 18.04246,
+    18.20712,19.57305, 21.20873, 30.03917, 34.88001, 36.87355,
+    53.91168)
+F3.13ln2 <- abrem.fit(Abrem(F3.13da),dist="lognormal",col="magenta")
+plot(F3.13ln2,log="xy",main="Lognormal Plot")
+@
+\par\end{center}
+
+Continuing the active R session with vector \texttt{F3.13da} and abrem
+object \texttt{F3.13ln2} in memory, the lognormal fit we just made
+can be re-plotted on the Weibull canvas along with two-parameter and
+three-parameter Weibull fitted objects constructed from the same data.
+
+\begin{center}
+<<block7,echo=TRUE,fig=TRUE,tidy=FALSE>>=
+F3.13w2 <- abrem.fit(Abrem(F3.13da), col="blue")
+F3.13w3 <- abrem.fit(Abrem(F3.13da), dist="weibull3p", col="red")
+plot.abrem(list(F3.13w2,F3.13ln2,F3.13w3),
+    main=("Multi-distribution Plot"))
+@
+\par\end{center}
+
+This is a somewhat unexpected display. The example was specifically
+provided as a lognormal representation, but we observe a much more
+convincing curve fit with the three-parameter Weibull. A little examination
+with SuperSMITH reveals that use of the PVE for fit selection will
+favor the lognormal (due to a somewhat penalized 3p Weibull MC pivotal
+determination), but if fitting is performed using MLE, the likelihood
+ratio test reveals a 90\% significance for the 3p Weibull over the
+lognormal. The \texttt{abrem} package is neutral on this topic as
+of yet. For now, there is no \texttt{CCC\textasciicircum{}2} nor \texttt{prr}
+value displayed for the three-parmameter model. In the future provision
+of a log-likelihood value is expected as a goodness--of--fit measure
+even for models fit by rank regression.
+
+
+\subsection*{Exploratory work using third parameter optimization }
+
+At times sets of component life data can be too large for simple navigation
+in a spreadsheet. 
+
+\begin{center}
+<<block8,echo=TRUE,fig=TRUE,tidy=FALSE>>=
+library(abrem)
+data(abrem_mix1)
+da <- abrem_mix1
+dafit <- abrem.fit(Abrem(da),col="red")
+plot(dafit, main="Bathtub Life Data")
+abline(v=107, col="orange", lty=5, lwd=2)
+abline(v=1750, col="orange", lty=5, lwd=2)
+@
+\par\end{center}
+
+This complete set of life data ('Diaphragm life data of an acid gas
+compressor') fits poorly as a Weibull. Not only is the \texttt{AbPval}
+less than \texttt{10}, it is even zero!We observe, however that the
+data takes on somewhat expected behavior at the extremes of life:
+an early period of \emph{infant mortality} appears to give way to
+a more uniform life profile. Finally, at some later point it appears
+that wear--out is ultimately overwhelming.
+
+The orange vertical markers have been placed simply by eye, with some
+added help of examination of the data in the vicinity of the markers.
+In accordance with this observation, the data set is split into three
+parts for examination as three-parameter Weibulls. Each segment of
+life data, so divided, is treated as representing a \emph{mode} of
+failure; the other segments of data are considered as suspension data
+for that particular mode.
+
+\begin{center}
+<<block9,echo=TRUE,fig=TRUE,tidy=FALSE>>=
+earlyda <- da[1:10]
+midda   <- da[11:131]
+endda   <- da[132:200]
+Abrem_early <- Abrem(fail=earlyda,susp=c(midda,endda),
+    col="orange",label="Early data")
+Abrem_mid   <- Abrem(fail=midda,  susp=c(earlyda,endda),
+    col="magenta",label="Middata")
+Abrem_end   <- Abrem(fail=endda,  susp=c(earlyda,midda),
+    col="blue",label="Enddata")
+earlyfit <- abrem.fit(Abrem_early,dist="weibull3p")
+midfit   <- abrem.fit(Abrem_mid,  dist="weibull3p")
+endfit   <- abrem.fit(Abrem_end,  dist="weibull3p")
+plot.abrem(list(earlyfit,midfit,endfit), legend.text.size=0.5,
+    xlim=c(0.5,2e5),
+    main="Division of Life Data Using Three-Parameter Weibull")
+@
+\par\end{center}
+
+The resulting plot demonstrates much closer fitting to the segmented
+data. 
+
+It is possible to have \texttt{plot.abrem()} subtract a threshold
+value from the plot positions and the subsequent fits by passing the
+option \texttt{threshold=TRUE} in the call to \texttt{abrem.fit()}.
+This will subtract the \texttt{t0} value calculated by \texttt{abrem.fit(...,
+dist=''weibull3p'')} from the data and fits before plotting.
+
+Just add \texttt{threshold=TRUE} to the \texttt{abrem.fit()} lines
+in the previous code block:
+
+\begin{center}
+<<block10,echo=TRUE,fig=TRUE,tidy=FALSE>>=
+earlyfit <- abrem.fit(Abrem_early,dist="weibull3p",threshold=TRUE)
+midfit   <- abrem.fit(Abrem_mid,  dist="weibull3p",threshold=TRUE)
+endfit   <- abrem.fit(Abrem_end,  dist="weibull3p",threshold=TRUE)
+plot.abrem(list(earlyfit,midfit,endfit),
+    legend.text.size=0.5,xlim=c(5,2e4),
+    main="Linear Three-Parameter Weibull Fits by t0 Data Adjustment")
+@
+\par\end{center}
+
+
+
+
+\subsection*{Maximum Likelihood Estimation (MLE) fitting with \texttt{abrem}}
+
+At this time MLE fitting has only rudimentarily been implemented in
+the \texttt{abrem} package. It is possible to assign \texttt{method.fit}
+options of either \texttt{\textquotedblleft{}mle\textquotedblright{}}
+or \texttt{\textquotedblleft{}mle-rba\textquotedblright{}} to a two-parameter
+Weibull abrem object, only. A simple example is drawn from Appendix
+C of the text using the very small example data set found there.
+
+\begin{center}
+<<block11,echo=TRUE,fig=TRUE,tidy=FALSE>>=
+library(abrem)
+mle_ex <- Abrem(fail=c(1500,2250,4000,4300,7000),susp=c(1750,5000))
+mle_ex <- abrem.fit(mle_ex, method.fit=c("rr","xony"))
+mle_ex <- abrem.fit(mle_ex, method.fit="mle", col="blue")
+mle_ex <- abrem.fit(mle_ex, method.fit="mle-rba", col="steelblue")
+plot(mle_ex, xlim=c(1000,20000), main="RR, MLE and MLE-RBA Fitting")
+@
+\par\end{center}
+
+
+\subsection*{Model Selection and Goodness--of--Fit}
+
+One of the criteria in deciding on which model to go for is the goodness--of--fit.
+The handbook discusses many methods like $r^{2}-CCC^{2}$, Pve (in
+Abrem this is replaced by the superior AbPval) and Likelihood Ratio
+test.
+
+
+\subsubsection*{Likelihood Ratio Test}
+
+When Maximum Likelihood Estimation is used for fitting the model parameters,
+the log--likelihood is calculated and stored in the abrem object.
+Alternatively---for Rank Regression fits---on can use functions \texttt{LLw()}
+and \texttt{LLln()} from the \texttt{debias} package to calculate
+a log--likelihood value.
+
+When used to establish acceptance of a three--parameter model over
+its two-parameter counterpart on the same data, the three--parameter
+model is considered the \emph{null--hypothesis} model (H0) while the
+two--parameter model is taken as the \emph{alternate hypothesis} model
+(H1. Degrees of freedom (df) is \texttt{1} for this constrained model
+test. 
+
+
+
+Acceptance of the 3p model should require an Likelihood Ratio Test
+P-value greater than $50[\%]$. Comparison between Weibull and lognormal
+for failure data would place Weibull as alternate and lognormal as
+null whilDegrees of freedom would be 2.
+
+\begin{center}
+<<block12,echo=TRUE,fig=TRUE,tidy=FALSE>>=
+da <- rweibull(25,2,1000) + 1000
+da <- Abrem(da)
+da <- abrem.fit(da,dist="weibull",method.fit="mle-rba",col="red")
+	# alternative model
+da <- abrem.fit(da,dist="weibull3p",method.fit="mle-rba")
+	# null model
+LLalt <- da$fit[[1]]$gof$loglik
+LLnull <- da$fit[[2]]$gof$loglik
+
+LRT_P <- function(LLalt,LLnull,df){
+    pchisq(-2*(LLalt-LLnull),df)
+	    # original
+}
+lrtp <- LRT_P(LLalt,LLnull,df=1)
+plot.abrem(da)
+@
+\par\end{center}
+
+The Likelihood Ratio Test percentile value is here \Sexpr{signif(lrtp*100,4)}
+$[\%]$. If the percentile is larger than $50[\%]$, the three--parameter
+null--hypothesis model is not rejected and thus preferred. If smaller,
+the alternative two--parameter model is preferred.
+
+
+\subsection*{MLE Contours}
+
+Further development with MLE contours and likelihood ratio bounds
+is available in the underlying debias package. This is one of the
+frontiers of the Abernethy Reliability Methods project.
+
+\selectlanguage{american}%
+\clearpage{}\bibliographystyle{IEEEtranSN}
+\nocite{*}
+\bibliography{abernethy_bibtex}
+\selectlanguage{english}%
+
+\end{document}

@@ -1,0 +1,15 @@
+export(
+	Abrem,
+	abrem.fit,
+	abrem.conf,
+	params.to.ob,
+	options.abrem,
+	plot.abrem,
+	print.abrem,
+	contour.abrem)
+S3method(plot, abrem) 
+S3method(print, abrem) 
+S3method(contour, abrem)
+importFrom(abremPivotals)
+importFrom(debias) 
+

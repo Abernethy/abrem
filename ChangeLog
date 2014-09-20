@@ -1,0 +1,44 @@
+2014-04-17 Jurgen Symynck <jusy@openreliability.org>
+
+        * upgraded abrem 0.1.14 to 0.1.16:
+		No changes, trying to counter build problems on r-forge (having to do with linking to RcppArmaddillo)
+		
+2014-04-17 Jurgen Symynck <jusy@openreliability.org>
+
+        * upgraded abrem 0.1.12 to 0.1.14:
+		General man page updates and reorganization, more error checking, added support for subtracting threshold parameters from the data before plotting, replaced "bernard" with "benard", renamed option "blives" to "unrel", renamed option "conf.n" to "unrel.n", added some debugging datasets and a mixed model (synthetic) dataset.
+		Many more modifications to the code for debugging and (currently) undocumented features. (choose fit calculation code, choose confidence calculation code, plot superSMITH reports ...)
+		Removed the two "vignettes" that used to be accessible with browseVignettes(), but not anymore since R 3.1.
+		
+		* Abrem.R (Abrem): added support for arguments of class "numeric", 
+		* plot.abrem.R (plot.abrem): "main" title now plots without overlapping the top x-axis labels
+		* options.abrem.R (options.abrem): added option "mar", added some previously undocumented options, placed options in alphabetical order.
+
+
+2014-03-23 Jurgen Symynck <jusy@openreliability.org>
+
+        * upgraded abrem 0.1.10 to 0.1.12:
+        Nothing changed, using this version for debugging svn.
+
+        
+2013-12-09 Jurgen Symynck <jusy@openreliability.org>
+
+        * upgraded abrem 0.1.8 to 0.1.10:
+        General man page cleanup and reorganization. Moved the detailed description of some options to the manpage of the most approporiate function.
+        added support for contour calculation.
+        removed abrem:::MLEw3p_secant.r; now calling the version in package debias.
+        removed abrem:::MRRw3pxy; now calling the version in package debias.
+        
+        * Abrem.R (Abrem): added fail and susp argument options
+        * options.abrem.R (options.abrem): added in.legend logical option for
+        * calculateSingleConf.R (calculateSingleConf): named likelihood ratio bounds to "lrb" instead of "lira"
+        * calculateSingleFit.R (calculateSingleFit): reduced length of file; more efficient code reusage.
+        
+2013-11-02 Jurgen Symynck <jusy@openreliability.org>
+
+        * upgraded abrem 0.1.7 to 0.1.8:
+        Added missing information (specifically about dist and method.fit) in several man pages.
+        General man page cleanup and reorganization.
+        Change dependencies to debias (>= 0.1.7) and pivotals (>= 0.1.9)
+        
+        * calculatesinglefit.R (CalculateSingleFit): replaced RBAw() with RBAbeta()
