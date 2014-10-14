@@ -65,7 +65,7 @@ calculateSingleFit <- function(x,...){
         }else{
             wh <- which(sapply(names(x$data),pppcolumn,pppmethod,USE.NAMES=FALSE))
             cbind(basis,ppp=x$data[,wh])
-            # TODO: explore usefulness of having the ranking methodd embedded in the
+            # TODO: explore usefulness of having the ranking method embedded in the
             # column name at the fit level.
             
         }

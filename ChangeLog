@@ -1,7 +1,8 @@
-2014-04-17 Jurgen Symynck <jusy@openreliability.org>
+2014-10-11 Jurgen Symynck <jusy@openreliability.org>
 
-        * upgraded abrem 0.1.14 to 0.1.16:
-		No changes, trying to counter build problems on r-forge (having to do with linking to RcppArmaddillo)
+        * upgraded abrem 0.1.14 to 0.1.21:
+		Made the switch to package abremPivotals, eliminating the dependancy on the outdated pivotals package. Problematic depencancies on Rcpp and RcppArmadillo were removed. Split some functions into separate files.
+
 		
 2014-04-17 Jurgen Symynck <jusy@openreliability.org>
 

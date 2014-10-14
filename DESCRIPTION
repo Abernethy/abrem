@@ -2,11 +2,11 @@ Package: abrem
 Type: Package
 Title: Abernethy Reliability Methods
 Version: 0.1.21
-Date: August 23, 2014
+Date: October 11, 2014
 Author: Jurgen Symynck <jusy@openreliability.org>
 Maintainer: Jurgen Symynck <jusy@openreliability.org>
 Description: Implementation of reliability methods presented in "The New Weibull Handbook", Fifth Edition by Dr. Robert B. Abernethy. This package is dedicated to the control and view of models developed in dependant packages abremPivotals and abremDebias (under construction) implemented using the R object model.
-Depends: abremPivotals (>= 0.2.8), debias (>= 0.1.9) 
+Depends: abremPivotals (>= 0.2.9), debias (>= 0.1.9) 
 Suggests: MASS, boot
 License: GPL-3
 URL: http://r-forge.r-project.org/projects/abernethy,     http://www.openreliability.org

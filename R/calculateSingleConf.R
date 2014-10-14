@@ -152,7 +152,7 @@ calculateSingleConf <- function(fit,opadata,datarange,...){
                                 ppp <- abremPivotals::getPPP(
                                     x=fit$data$time[fit$data$event==1],
                                     s=fit$data$time[fit$data$event==0],
-                                    ppos=opaconf$ppos)$ppp
+                                    ppos=opaconf$ppos,na.rm=FALSE)$ppp
                                     # TODO: ppos=opaconf$ppos is not compatible with the intended feature that multiple adjuste rank methods can be supplied!
                                 sx$ppp[sx$event] <- ppp
                                     # this assumes fit$data and thus sx is ordered
@@ -309,8 +309,8 @@ calculateSingleConf <- function(fit,opadata,datarange,...){
                                     x=na.omit(fit$data),
                                     dist=dst,
                                     reg_method=ifelse("xony" %in% tolower(opaconf$method.fit),"xony","yonx"),
-                                    R2=0.0,CL=opaconf$cl,
-                                    # by passing R2=0.0, only the pivotals are returned in a matrix
+                                    r2=0.0,CL=opaconf$cl,
+                                    # by passing r2=0.0, only the pivotals are returned in a matrix
                                     unrel=unrel,
                                     P1=Scale,
                                     P2=Shape,

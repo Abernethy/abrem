@@ -75,11 +75,8 @@ params.to.ob <- function(dist, ... ){
                 if(!is.null(opa$beta) && !is.null(opa$eta)){
                     if(!is.null(opa$ppos)){
                         ppp <- rep(NA,length(opa$event))
-                        ppp[opa$event==1] <- abremPivotals::getPPP(x=opa$event,ppos=opa$ppos[1])$ppp
-                            # the above call SHOULD be correct (compated with output from pivotals
-                            # 'mis'using which for getting timelike values from the event vector
-                            # no need to use the real lifetime observations here,
-                            # just getting the ppp
+                        #ppp[opa$event==1] <- abremPivotals::getPPP(x=opa$event,ppos=opa$ppos[1],na.rm=FALSE)$ppp
+                        ppp <- abremPivotals::getPPP(x=opa$event,ppos=opa$ppos[1],na.rm=FALSE)$ppp
                         ret <- data.frame(time=qweibull(ppp,opa$beta,opa$eta),event=opa$event)
                             # a good thing that qweibull deals nicely with NA's!
                     }else{
@@ -91,8 +88,9 @@ params.to.ob <- function(dist, ... ){
                 if(!is.null(opa$mulog) && !is.null(opa$sigmalog)){
                     if(!is.null(opa$ppos)){
                         ppp <- rep(NA,length(opa$event))
-                        ppp[opa$event==1] <- abremPivotals::getPPP(x=which(opa$event==1),#s=which(opa$event==0),
-                        ppos=opa$ppos[1])$ppp
+                        #ppp[opa$event==1] <- abremPivotals::getPPP(x=which(opa$event==1),#s=which(opa$event==0),
+                        ppp <- abremPivotals::getPPP(x=which(opa$event==1),#s=which(opa$event==0),
+                            ppos=opa$ppos[1],na.rm=FALSE)$ppp
                         ret <- data.frame(time=qlnorm(ppp,opa$mulog,opa$sigmalog),event=opa$event)
                     }else{
                         stop("Argument \"ppos\" is missing; no ranking method supplied.")

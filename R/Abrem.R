@@ -111,21 +111,31 @@ Abrem <- function(x,...){
             # experimental code, in combination with support in
             # abremPivotals::gePPP for event vector arguments
 
-            ret$data[ret$data$event==1,'ppp'] <<-
+            ret$data <<-
+                ###[ret$data$event==1,'ppp'] <<-
                 abremPivotals::getPPP(
                     x=ret$data$event,
-                    ppos=ppos)$ppp
+                    ppos=ppos,na.rm=FALSE)#$ppp
         }else{
-            ret$data[ret$data$event==1,'ppp'] <<-
+            ret$data <<-
+            #[ret$data$event==1,'ppp'] <<-
                 abremPivotals::getPPP(
                     x=ret$data$time[ret$data$event==1],
                     s=ret$data$time[ret$data$event==0],
-                    ppos=ppos)$ppp
+                    ppos=ppos,na.rm=FALSE)#$ppp
+#            ret$data[ret$data$event==1,'ppp'] <<-
+#                abremPivotals::getPPP(
+#                    x=ret$data$time[ret$data$event==1],
+#                    s=ret$data$time[ret$data$event==0],
+#                    ppos=ppos)$ppp
         }
-        colnames(ret$data) <<- c(
-            colnames(ret$data)[-ncol(ret$data)],
-            paste0("ppp.",ppos))
+        whi <- which(colnames(ret$data)=="ppp")
+        colnames(ret$data)[whi] <<- paste0("ppp.",ppos)
+            # <<- c( colnames(ret$data)[-ncol(ret$data)],
+            # paste0("ppp.",ppos))
             # renaming the added column to include the type of ranking 
+            # Jurgen October 7, 2014: not sure why I didn't implement this
+            # solution earlier
     }
 
     if(any(
