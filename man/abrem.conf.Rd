@@ -156,7 +156,7 @@ plot(da1,main="Comparison between MC Pivotal bounds and BB Bounds")
 
 ## censored dataset: generates a warning for MC Pivotal confidence bounds ##
 da2 <- runif(8,100,1e4)
-da2 <- Abrem(fail=da2,susp=rep(max(da2),2),label="Type II censored data")
+da2 <- Abrem(da2,susp=rep(max(da2),2),label="Type II censored data")
     # generate a 'type 2' censored dataset
 da2 <- abrem.fit(da2)
 da2 <- abrem.conf(da2,method.conf.blives="mcpivotals",col="blue1")

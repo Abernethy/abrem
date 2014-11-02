@@ -34,11 +34,6 @@
 
 calculateSingleFit <- function(x,...){
     # x is a single Abrem object
-    # TODO: check the difference between 
-    # x$fit[[i]]$options$dist <<- "weibull2p"
-    # ... and
-    # x$fit[[i]]$options$dist  <- "weibull2p"
-    
 
     #########################
     #  auxiliary functions  #
@@ -70,6 +65,10 @@ calculateSingleFit <- function(x,...){
             
         }
     }
+    
+    #####################
+    #  goodness of fit  #
+    #####################
     goodness_of_fit <- function(npar){
         if(!is.null(x$fit[[i]])){
             if(is.null(x$fit[[i]]$gof)){
@@ -90,7 +89,7 @@ calculateSingleFit <- function(x,...){
                     # TODO: prr: see pivotalMC
                     if(!any(c("mle","mle-rba","mle2","mle2-rba","mle3","mle3-rba") 
                         # TODO: does it make sense to have reports of r^2 and ccc^2 while using MLE?
-                        # Jurgen: yes, for comparing with the rank regression values
+                        # Jurgen: yes, for comparing with the Rank Regression values
                         # what does Jabob think?
                         %in% tolower(opafit$method.fit))){
                         gof <- abremPivotals::AbPval(x$fit[[i]]$fail,x$fit[[i]]$gof$r2)
@@ -136,6 +135,7 @@ calculateSingleFit <- function(x,...){
     x$fit[[i]]$n    <- x$n
     x$fit[[i]]$fail <- x$fail
     x$fit[[i]]$susp <- x$susp
+        # TODO: this replicates the data from the abrem level -> should not be necessary!
 
     if(!is.null(opafit$importfile)){
         if(opafit$verbosity >= 1)message("calculateSingleFit : ",
@@ -166,7 +166,7 @@ calculateSingleFit <- function(x,...){
         }
         return(x)
     }
-    if(any(c("rr","rr2") %in% tolower(opafit$method.fit))){
+    if("rr" %in% tolower(opafit$method.fit)){
         #  ____             _                                       _
         # |  _ \ __ _ _ __ | | __  _ __ ___  __ _ _ __ ___  ___ ___(_) ___  _ __
         # | |_) / _` | '_ \| |/ / | '__/ _ \/ _` | '__/ _ \/ __/ __| |/ _ \| '_ \
@@ -199,78 +199,87 @@ calculateSingleFit <- function(x,...){
             }
         }
 
-        if("rr" %in% tolower(opafit$method.fit)){
-            x$fit[[i]]$options$method.fit <- c("rr",xy)
-            if(npar==2){
-                atLeastOneFit        <- TRUE
-                if(is_xony) x$fit[[i]]$lm   <- lm(times ~ ranks,x$fit[[i]]$data)
-                else        x$fit[[i]]$lm   <- lm(ranks ~ times,x$fit[[i]]$data)
-                    # TODO: add error checking
-                B <- coef(x$fit[[i]]$lm)[[2]]
-                A <- coef(x$fit[[i]]$lm)[[1]]
-                if(dst=="lognormal"){
-                    x$fit[[i]]$mulog     <- ifelse(is_xony,A,-A/B)
-                    x$fit[[i]]$sigmalog  <- ifelse(is_xony,B,1/B)
-                }
-                if(dst=="weibull"){
-                    x$fit[[i]]$eta   <- ifelse(is_xony,exp(A),exp(-A/B))
-                    x$fit[[i]]$beta  <- ifelse(is_xony,1/B,B)
-                }
+        if(any(c("use.lm","use_lm") %in% tolower(opafit$method.fit))){
+            if(sum(!is.na(ranks)) < 2){
+                vm(1,"calculateSingleFit: Rank Regression only supports (life-)time observations including at least two failures.")
+                x$fit[i]  <- list(NULL)
             }else{
-                vm(0,paste0('calculateSingleFit: \"rr\" is not defined for three parameter distributions,\n',
-                'defaulting to rr2...'))
-                to_rr2 <- TRUE
+                x$fit[[i]]$options$method.fit <- c("rr",xy,"use.lm")
+                if(npar==2){
+                    atLeastOneFit <- TRUE
+                    if(is_xony) x$fit[[i]]$lm   <- lm(times ~ ranks,x$fit[[i]]$data)
+                    else        x$fit[[i]]$lm   <- lm(ranks ~ times,x$fit[[i]]$data)
+                        # TODO: add error checking
+                    B <- coef(x$fit[[i]]$lm)[[2]]
+                    A <- coef(x$fit[[i]]$lm)[[1]]
+                    if(dst=="lognormal"){
+                        x$fit[[i]]$mulog     <- ifelse(is_xony,A,-A/B)
+                        x$fit[[i]]$sigmalog  <- ifelse(is_xony,B,1/B)
+                    }
+                    if(dst=="weibull"){
+                        x$fit[[i]]$eta   <- ifelse(is_xony,exp(A),exp(-A/B))
+                        x$fit[[i]]$beta  <- ifelse(is_xony,1/B,B)
+                    }
+                }else{
+                    vm(0,paste0('calculateSingleFit: Currently, three parameter distributions cannnot be fit using lm(), proceeding...'))
+                    to_rr2 <- TRUE
+                }
             }
         } 
-                    
-        if("rr2" %in% tolower(opafit$method.fit) || to_rr2){
-            x$fit[[i]]$options$method.fit <- c("rr2",xy)
-            ret <- NULL
-            me <- NULL
-            try(ret <- abremPivotals::lslr(
-                x$fit[[i]]$data,
-                dist=dst,
-                npar=npar,
-                reg_method=xy))
-            if(!is.null(ret) && !any(is.nan(ret))){
-                atLeastOneFit        <- TRUE
-                if(tolower(opafit$dist) %in% c("weibull","weibull2p","weibull3p")){
-                    x$fit[[i]]$eta       <- ret[['Eta']]
-                    x$fit[[i]]$beta      <- ret[['Beta']]
-                    if(tolower(opafit$dist) %in% c("weibull3p")){
-                        x$fit[[i]]$t0    <- ret[['t0']]
-                    }
-                }
-                if(tolower(opafit$dist) %in% c("lognormal","lognormal2p","lognormal3p")){
-                    x$fit[[i]]$mulog     <- ret[['Mulog']]
-                    x$fit[[i]]$sigmalog  <- ret[['Sigmalog']]
-                    if(tolower(opafit$dist) %in% c("lognormal3p")){
-                        x$fit[[i]]$t0    <- ret[['t0']]
-                    }
-                }
-                x$fit[[i]]$gof       <- list()
-                x$fit[[i]]$gof$r2    <- ret[['Rsqr']]
-                if(npar==2) x$fit[[i]]$gof$AbPval    <- ret[['AbPval']]
-                    # AbPval is not supported for three parameter distributions
-                if(!is.null(opafit$threshold)){
-                    # this overwrites any threshold setting at the data level with a number
-                    # TODO: this is not the way to go when trying to implement support for
-                    # threshold with plot.abrem()                    
-                    if(is.logical(opafit$threshold) && opafit$threshold)
-                        x$options$threshold  <- ret[[3]]
-                }
-            }else{
-                vm(1,"calculateSingleFit: Fitting failed.")
+
+        if(!any(c("use.lm","use_lm") %in% tolower(opafit$method.fit)) || to_rr2){
+            if(sum(!is.na(ranks)) < 2){
+                vm(1,"calculateSingleFit: Rank Regression only supports (life-)time observations including at least two failures.")
                 x$fit[i]  <- list(NULL)
-                    # note that is.null(x$fit[[i]]) will exit with an error
-                    # TODO: replace with x$fit[[i]]  <- list(NULL)
+            }else{
+                x$fit[[i]]$options$method.fit <- c("rr",xy)
+                ret <- NULL
+                me <- NULL
+                try(ret <- abremPivotals::lslr(
+                    x$fit[[i]]$data,
+                    dist=dst,
+                    npar=npar,
+                    reg_method=xy))
+                if(!is.null(ret) && !any(is.nan(ret))){
+                    atLeastOneFit        <- TRUE
+                    if(tolower(opafit$dist) %in% c("weibull","weibull2p","weibull3p")){
+                        x$fit[[i]]$eta       <- ret[['Eta']]
+                        x$fit[[i]]$beta      <- ret[['Beta']]
+                        if(tolower(opafit$dist) %in% c("weibull3p")){
+                            x$fit[[i]]$t0    <- ret[['t0']]
+                        }
+                    }
+                    if(tolower(opafit$dist) %in% c("lognormal","lognormal2p","lognormal3p")){
+                        x$fit[[i]]$mulog     <- ret[['Mulog']]
+                        x$fit[[i]]$sigmalog  <- ret[['Sigmalog']]
+                        if(tolower(opafit$dist) %in% c("lognormal3p")){
+                            x$fit[[i]]$t0    <- ret[['t0']]
+                        }
+                    }
+                    x$fit[[i]]$gof       <- list()
+                    x$fit[[i]]$gof$r2    <- ret[['Rsqr']]
+                    if(npar==2) x$fit[[i]]$gof$AbPval    <- ret[['AbPval']]
+                        # AbPval is not supported for three parameter distributions
+                    if(!is.null(opafit$threshold)){
+                        # this overwrites any threshold setting at the data level with a number
+                        # TODO: this is not the way to go when trying to implement support for
+                        # threshold with plot.abrem()                    
+                        if(is.logical(opafit$threshold) && opafit$threshold)
+                            x$options$threshold  <- ret[[3]]
+                    }
+                }else{
+                    vm(1,"calculateSingleFit: Fitting failed.")
+                    x$fit[i]  <- list(NULL)
+                        # note that is.null(x$fit[[i]]) will exit with an error
+                        # TODO: replace with x$fit[[i]]  <- list(NULL)
+                }
             }
         }
         goodness_of_fit(npar)
     }
    
   
-    if(any(c("mle","mle-rba","mle2","mle2-rba","mle3","mle3-rba") %in% tolower(opafit$method.fit))){
+    if(any(c("mle","mle-rba") %in% tolower(opafit$method.fit))){
         #   from email David Silkworth <djsilk@openreliability.org> ma 4/11/2013 18:29
         #   The MLE you want to call in abrem is MLEw2p_cpp  This is the fast one in compiled code.
         #
@@ -309,106 +318,84 @@ calculateSingleFit <- function(x,...){
 
         fa <- x$fit[[i]]$data$time[x$fit[[i]]$data$event==1]
         su <- x$fit[[i]]$data$time[x$fit[[i]]$data$event==0]
-        ret <- NULL
-        #is_3p <- FALSE
-        npar <- 2
-        if(tolower(opafit$dist) %in% c("weibull","weibull2p","weibull3p")){
-            if(tolower(opafit$dist) %in% c("weibull","weibull2p")){
-                x$fit[[i]]$options$dist <- "weibull2p"
-                if(any(c("mle","mle-rba") %in% tolower(opafit$method.fit))){
+        if(length(su)==0) su <- NULL
+        ret <- NULL        
+        if(length(fa) < 1){
+            vm(1,"calculateSingleFit: MLE only supports (life-)time observations including at least one failure.")
+        }else{        
+            #is_3p <- FALSE
+            npar <- 2
+            if(tolower(opafit$dist) %in% c("weibull","weibull2p","weibull3p")){
+                if(tolower(opafit$dist) %in% c("weibull","weibull2p")){
+                    # Nov 2014: dropped support for MLEw2p_abrem and MLEw2p_optim
+                    # per request from Jacob
+                    x$fit[[i]]$options$dist <- "weibull2p"                    
                     x$fit[[i]]$options$method.fit <- "mle"
-                    try(ret <- debias::MLEw2p_abrem(fa,s=su))
+                    if(!is.null(fa)) try(ret <- debias::MLEw2p_cpp(fa,s=su))
                 }
-                if(any(c("mle2","mle2-rba") %in% tolower(opafit$method.fit))){
-                    x$fit[[i]]$options$method.fit <- "mle2"
-                    try(ret <- debias::MLEw2p_cpp(fa,s=su))
-                        # TODO: bypass the R code and use the CPP code immediately
+                if(tolower(opafit$dist) %in% c("weibull3p")){
+                    #is_3p <- TRUE
+                    npar <- 3
+                    x$fit[[i]]$options$dist <- "weibull3p"
+                    if(!is.null(fa)) try(ret <- debias::MLEw3p_secant(fa,s=su))
+                        # secant: purely  R code ...
+                        # TODO: check if secant is using lm() or optim !
+                        # TODO: this will be significantly changed in abremDebias
+                        # -> check this out
                 }
-                if(any(c("mle3","mle3-rba") %in% tolower(opafit$method.fit))){
-                    x$fit[[i]]$options$method.fit <- "mle3"
-                    try(ret <- debias::MLEw2p_optim(fa,s=su))
-                        # TODO: bypass the R code and use the CPP code immediately
-                }
-            }
-            if(tolower(opafit$dist) %in% c("weibull3p")){
-                #is_3p <- TRUE
-                npar <- 3
-                x$fit[[i]]$options$dist <- "weibull3p"
-                if(any(c("mle2","mle2","mle2-rba","mle3-rba") %in% tolower(opafit$method.fit))){
-                    vm(0,paste0(
-                        'calculateSingleFit: \"mle2\" and \"mle3\" are not defined for ",
-                        opafit$dist,", defaulting to \"mle\"...'))
-                        x$fit[[i]]$options$method.fit <- "mle"}
-                try(ret <- debias::MLEw3p_secant(fa,s=su))
-                    # secant: purely  R code ...
-            }
-            if(!is.null(ret)){
-                atLeastOneFit <- TRUE
-                x$fit[[i]]$beta <- ret[[2]]
-                x$fit[[i]]$eta  <- ret[[1]]
-                if(npar==3){
-                    x$fit[[i]]$t0   <- ret[[3]]
-                    x$fit[[i]]$gof  <- list()
-                    x$fit[[i]]$gof$loglik <- ret[[4]]
+                if(!is.null(ret)){
+                    atLeastOneFit <- TRUE
+                    x$fit[[i]]$beta <- ret[[2]]
+                    x$fit[[i]]$eta  <- ret[[1]]
+                    if(npar==3){
+                        x$fit[[i]]$t0   <- ret[[3]]
+                        x$fit[[i]]$gof  <- list()
+                        x$fit[[i]]$gof$loglik <- ret[[4]]
+                    }else{
+                        x$fit[[i]]$gof <- list()
+                        x$fit[[i]]$gof$loglik <- ret[[3]]
+                    }
+                    if(!is.null(opafit$threshold)){
+                        if(is.logical(opafit$threshold) && opafit$threshold)
+                             x$options$threshold  <- ret[[3]]
+                    }
+                        # this overwrites any threshold setting at the data level with a number
+                        # TODO: this is not the way to go when trying to implement support for
+                        # threshold with plot.abrem()
+                    if("mle-rba" %in% tolower(opafit$method.fit)){
+                        x$fit[[i]]$options$method.fit <- "mle-rba"
+                        vm(2,"calculateSingleFit: Applying Abernethy's Bias Reduction ...")
+                        x$fit[[i]]$beta <- ret[[2]]*debias::RBAbeta(length(fa))
+                            # TODO: set the option: median or mean bias reduction
+                    }
+                    goodness_of_fit(npar)
                 }else{
-                    x$fit[[i]]$gof <- list()
-                    x$fit[[i]]$gof$loglik <- ret[[3]]
+                    vm(1,"calculateSingleFit: Fitting failed.")
+                    x$fit[i]  <- list(NULL)
                 }
-                if(!is.null(opafit$threshold)){
-                    if(is.logical(opafit$threshold) && opafit$threshold)
-                         x$options$threshold  <- ret[[3]]
-                }
-                    # this overwrites any threshold setting at the data level with a number
-                    # TODO: this is not the way to go when trying to implement support for
-                    # threshold with plot.abrem()
-                if(any(c("mle-rba","mle2-rba","mle3-rba") %in% tolower(opafit$method.fit))){
-                    if("mle-rba" %in% tolower(opafit$method.fit))
-                        x$fit[[i]]$options$method.fit <- "mle-rba"
-                    if("mle2-rba" %in% tolower(opafit$method.fit))
-                        x$fit[[i]]$options$method.fit <- "mle2-rba"
-                    if("mle3-rba" %in% tolower(opafit$method.fit))
-                        x$fit[[i]]$options$method.fit <- "mle3-rba"
-                    vm(2,"calculateSingleFit: Applying Abernethy's Bias Reduction ...")
-                    x$fit[[i]]$beta <- ret[[2]]*debias::RBAbeta(length(fa))
-                        # TODO: set the option: median or mean bias reduction
-                }
-                goodness_of_fit(npar)
-            }else{
-                vm(1,"calculateSingleFit: Fitting failed.")
-                x$fit[i]  <- list(NULL)
             }
-        }
-
-        if(tolower(opafit$dist) %in% c("lognormal","lognormal2p")){
-            x$fit[[i]]$options$dist <- "lognormal2p"
-            if(any(c("mle","mle-rba","mle3","mle3-rba") %in% tolower(opafit$method.fit))){
-                vm(0,paste0(
-                'calculateSingleFit: \"mle\" and \"mle3\" are not defined for ',
-                opafit$dist,', defaulting to \"mle2\"...'))}     
-            x$fit[[i]]$options$method.fit <- "mle2"
-            try(ret <- debias::MLEln2p_cpp(fa,s=su))
-            if(!is.null(ret)){
-                atLeastOneFit <- TRUE
-                x$fit[[i]]$mulog  <- ret[[1]]
-                x$fit[[i]]$sigmalog    <- ret[[2]]
-                x$fit[[i]]$gof      <- list()
-                x$fit[[i]]$gof$loglik <- ret[[3]]
-                if(any(c("mle-rba","mle2-rba","mle3-rba") %in% tolower(opafit$method.fit))){
-                    if("mle-rba" %in% tolower(opafit$method.fit))
+    
+            if(tolower(opafit$dist) %in% c("lognormal","lognormal2p")){
+                x$fit[[i]]$options$dist <- "lognormal2p"
+                x$fit[[i]]$options$method.fit <- "mle"
+                try(ret <- debias::MLEln2p_cpp(fa,s=su))
+                if(!is.null(ret)){
+                    atLeastOneFit       <- TRUE
+                    x$fit[[i]]$mulog    <- ret[[1]]
+                    x$fit[[i]]$sigmalog <- ret[[2]]
+                    x$fit[[i]]$gof      <- list()
+                    x$fit[[i]]$gof$loglik <- ret[[3]]
+                    if("mle-rba" %in% tolower(opafit$method.fit)){
                         x$fit[[i]]$options$method.fit <- "mle-rba"
-                    if("mle2-rba" %in% tolower(opafit$method.fit))
-                        x$fit[[i]]$options$method.fit <- "mle2-rba"
-                    if("mle3-rba" %in% tolower(opafit$method.fit))
-                        x$fit[[i]]$options$method.fit <- "mle3-rba"
-                    vm(2,"calculateSingleFit: Applying Abernethy's Median Bias Reduction ...")
-                    x$fit[[i]]$sigmalog <- ret[[2]]*debias::RBAsigma(length(fa))
-                        # with RBAsigma, there are no options...
+                        vm(2,"calculateSingleFit: Applying Abernethy's Median Bias Reduction ...")
+                        x$fit[[i]]$sigmalog <- ret[[2]]*debias::RBAsigma(length(fa))
+                            # with RBAsigma, there are no options...
+                    }
+                    goodness_of_fit(npar)
+                }else{
+                    vm(1,"calculateSingleFit: Fitting failed.")
+                    x$fit[i]  <- list(NULL)
                 }
-                goodness_of_fit(npar)
-            }else{
-                vm(1,"calculateSingleFit: Fitting failed.")
-                x$fit[i]  <- list(NULL)
-
             }
         }
     }

@@ -36,9 +36,9 @@ options.abrem <- function(...){
     # function to handle the many options of the weibull toolkits functions
     # the option list should only be manipulated through this function!
     
-    # TODO: WARNING: partial matching is in effect!
-    # options.abrem()$ylim will return options.abrem()$ylim.default if
-    # $ylim was set to NULL!
+    # WARNING: partial matching is in effect!
+    #   options.abrem()$ylim will return options.abrem()$ylim.default if
+    #   $ylim was set to NULL!
 
     single <- FALSE
     args <- list(...)
@@ -50,8 +50,6 @@ options.abrem <- function(...){
         options_abrem <<- list(
             dist="weibull",
             method.fit=c("rr","xony"),
-                # TODO: decide between "rr" and "rr2".
-                # "rr2" is not 100%compatible with params.to.ob
             conf.what="blives",
             conf.blives.sides="double",
             unrel.n=25,
@@ -59,14 +57,14 @@ options.abrem <- function(...){
             ppos="benard",#,"beta"),#,"benard_cpp","hazen","mean"),
                 #"benard", "beta", "mean", "hazen", "Kaplan-Meier", "Blom".
                 # TODO: make the transition from pp to ppos everywhere in the abrem code!
-                # TODO: Code has changed from beta to benard as the default!
             S=1e4,
             pivotals=FALSE,
             cl=0.9,
-            # cl or CL ?
             unrel=c(0.1,0.05,0.01),
             verbosity=0,
             mar=c(5.1,4.1,5.1,2.1),
+            axes=c(1,2),
+            frame.plot=T,
             main="Probability Plot",
             main.contour="Contour Plot",
                 # a default title for Contour plots
@@ -76,8 +74,10 @@ options.abrem <- function(...){
             ylim=NULL,
             xlab="Time To Failure",
             ylab="Unreliability [%]",
-            log="x", # maybe this should be removed in favor of "canvas"
-            #canvas="weibull",
+            log="x",
+            canvas="weibull",
+                # For code efficiency reasons, both options log and canvas should coexist.
+                # This also enables to pass canvas="",log="" to get unmodified axes.
             coordinate.text.size=0.7,
             signif=4,
             pch=1,
@@ -93,7 +93,6 @@ options.abrem <- function(...){
             is.plot.ppp=TRUE,
             is.plot.pppcoordinates=FALSE,
             is.plot.legend=TRUE,
-            #         legend.position="bottomright",
             legend.text.size=0.7,
             label="",
             in.legend=TRUE,
@@ -107,8 +106,8 @@ options.abrem <- function(...){
            # return the current option list
     else {
 #        if (all(unlist(lapply(args, is.character))))
-            # if all items in the args are characters, then
-            # treat them as the names of the options.
+#            if all items in the args are characters, then
+#            treat them as the names of the options.
 #            args <- as.list(unlist(args))
         # TODO; the above abrem causes bug 5596
         if (length(args) == 1) {

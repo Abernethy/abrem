@@ -59,8 +59,7 @@ contour.abrem <- function(x,...){
         xlimits <- range(contourRanges[,1])
         ylimits <- range(contourRanges[,2])
         opanames <- names(opa)
-        plotargs <- c(list(x=NA,axes=TRUE),
-            opa[opanames %in% plot_default_args()])
+        plotargs <- modifyList(opa[opanames %in% plot_default_args()],list(x=NA,axes=TRUE))
         plotargs$xlim <- xlimits
         plotargs$ylim <- ylimits
         plotargs$main <- opa$main.contour

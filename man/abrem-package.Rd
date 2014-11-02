@@ -10,7 +10,6 @@
     and unmaintained \pkg{weibulltoolkit} package, still available from:
     
     http://sourceforge.net/projects/weibulltoolkit/.
-    % TODO: replace with Jacob's version from DESCRIPTION
 }
 \author{
 Jurgen Symynck <jusy@openreliability.org>

@@ -60,6 +60,14 @@ plot.abrem <- function(x,...){
     # +--------------------------+
     # |  create new plot canvas  |
     # +--------------------------+
+    if(tolower(opa$canvas)=="weibull") opa$log <- "x"
+    if(tolower(opa$canvas)=="lognormal") opa$log <- "xy" 
+        #   A character string describing the type of plotting canvas to use. 
+        #   Possible values are:
+        #       "x"   (weibull canvas)
+        #       "xy"  (lognormal canvas)
+        #       ""    (weibull Y axis, linear X axis)
+        #       "y"   (lognormal Y axis, linear X axis).
     ra <- findMaxDataRange(x,opa$verbosity,opa$log)
         # NA values can be part of ra, when log scales are to be used
         # and there are negative failure times
@@ -70,13 +78,15 @@ plot.abrem <- function(x,...){
             10^(log10(xlimits[2])+1))
     }
     if(is.null(opa$ylim)){
-        if(ylimits[1] < 0.01) opa$ylim <- c(signif(ylimits[1],1),0.99)
-        else opa$ylim <- c(0.01,0.99)
-        # do not care about the upper limit
+        opa$ylim <- c(0.01,0.99)
+        if(ylimits[1] < 0.01 && ylimits[1] != -Inf) opa$ylim <- c(signif(ylimits[1],1),0.99)
+        # do not care about the upper limit.
+        # comparing to -Inf is needed for the case that no failures are in the event vectors,
+        # like in the motors dataset fom package MASS for temp=150
     }
     opanames <- names(opa)
-    plotargs <- c(list(x=NA,axes=FALSE),
-        opa[opanames %in% plot_default_args()])
+#    plotargs <- c(list(x=NA,axes=FALSE),opa[opanames %in% plot_default_args()])
+    plotargs <- modifyList(opa[opanames %in% plot_default_args()],list(x=NA,axes=FALSE))
     if(!is.null(plotargs$ylim)){
         plotargs$ylim <- F0inv(plotargs$ylim,opa$log)
     }
@@ -88,46 +98,55 @@ plot.abrem <- function(x,...){
     if(opa$is.plot.grid){
         abline(
             h=F0inv(seq.wb(opa$ylim[1]/10,1-(1-opa$ylim[2])/10),opa$log),
+                # TODO: the grid sometimes overplots the frame
             v=seq.log(opa$xlim[1]/10,opa$xlim[2]*10,seq(0,10,1)),
             col = opa$col.grid)
     }
     r <- seq.log(opa$xlim[1]/10,opa$xlim[2]*10,c(1,5))
     #lin <- 0.0
     for(t in c(1,3)){
-        axis(t,at=seq.log(opa$xlim[1]/10,opa$xlim[2]*10,seq(0,10,0.2)),
-            labels=NA,tcl=-0.25)#,line=0.0
-            # plot top and bottom axis tickmarks
-        axis(t,at=r,labels=r,tcl=-0.75)#,line=0.0
-            # plot top and bottom axis labels
+    # TODO: rewrite as do.call() or apply()
+        if(t %in% opa$axes){
+            axis(t,at=seq.log(opa$xlim[1]/10,opa$xlim[2]*10,seq(0,10,0.2)),
+                labels=NA,tcl=-0.25)#,line=0.0
+                # plot top and bottom axis tickmarks
+            axis(t,at=r,labels=r,tcl=-0.75)#,line=0.0
+                # plot top and bottom axis labels
+        }
     }
     r <- c(seq.wb(opa$ylim[1]/10,1-(1-opa$ylim[2])/10,c(1,2,5)),0.9)
     for(t in c(2,4)){
-        # TODO: rewrite as do.call() or apply()
-        axis(t,at=F0inv(seq.wb(opa$ylim[1]/10,1-(1-opa$ylim[2])/10),
-            opa$log),labels=NA,tcl=-0.25)#,line=0.0
-            # plot left and right axis tickmarks
-        axis(t,at=F0inv(r,opa$log),
-            labels=r*100,tcl=-0.75)#,line=0.0
-            # plot left and right axis labels
+        if(t %in% opa$axes){
+            axis(t,at=F0inv(seq.wb(opa$ylim[1]/10,1-(1-opa$ylim[2])/10),
+                opa$log),labels=NA,tcl=-0.25)#,line=0.0
+                # plot left and right axis tickmarks
+            axis(t,at=F0inv(r,opa$log),
+                labels=r*100,tcl=-0.75)#,line=0.0
+                # plot left and right axis labels
+        }else{
+            #axis(t)
+        }
     }
     abline(h=0,lty = 3,col = opa$col.grid)
         # plot the 63.2 [%] unreliability line
     title(main=opa$main,line=3)
+    if(opa$frame.plot && opa$is.plot.grid)box()
+        # because the grid overplots the earlier drawn frame...
 
     # +--------------------------+
     # |  plot confidence bounds  |
     # +--------------------------+
-    lapply(x,plotConfsInAbrem,v=opa$verbosity,...)
+    lapply(x,plotConfsInAbrem,v=opa$verbosity,log=opa$log,...)
 
     # +-------------+
     # |  plot fits  |
     # +-------------+
-    lapply(x,plotFitsInAbrem,v=opa$verbosity,xl=opa$xlim,yl=opa$ylim,...)
+    lapply(x,plotFitsInAbrem,v=opa$verbosity,xl=opa$xlim,yl=opa$ylim,log=opa$log,...)
 
     # +-----------------------------------+
     # |  plot probability plot positions  |
     # +-----------------------------------+
-    lapply(x,plotSingleDataSet,opa$is.plot.ppp,...)
+    lapply(x,plotSingleDataSet,opa$is.plot.ppp,log=opa$log,...)
 
     # +----------------+
     # |  plot legends  |
@@ -154,8 +173,12 @@ plot.abrem <- function(x,...){
         if(opa$verbosity >= 1)message(
             "plot.abrem: There is no legend to plot.")
     }
-#    if(opa$log == "x") legend("top",legend=NA,title="Weibull",bg="white")
-#    if(opa$log == "xy") legend("top",legend=NA,title="Lognormal",bg="white")
+    if(tolower(opa$canvas) == "weibull")
+        legend("topleft",legend=NA,bg="white",cex=0.3,
+            pch="W",inset=0,xpd=F)
+    if(tolower(opa$canvas) == "lognormal")
+        legend("topleft",legend=NA,bg="white",cex=0.3,
+            pch="L",inset=0,xpd=F)
 #    if(opa$log %in% c("","y")) legend("top",legend=NA,title="xxx",bg="white")
     invisible()
         # TODO: return the abrem object with updated graphical options

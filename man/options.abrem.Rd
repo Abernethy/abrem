@@ -1,5 +1,7 @@
 \name{options.abrem}
 \alias{options.abrem}
+\alias{axes}
+\alias{canvas}
 \alias{cex.points}
 \alias{cl}
 \alias{col}
@@ -44,7 +46,6 @@
 \alias{ylab}
 \alias{ylim}
 
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{
     \pkg{abrem} Options
 }
@@ -97,6 +98,31 @@
 \section{Abrem options}{
 
     \describe{
+        \item{\code{axes}}{
+            A numeric vector with values from \code{1:4} describing which
+            axes should be plotted. 
+            See \code{\link[graphics]{axis}} of the \pkg{graphics} package
+            for more info.
+            
+            Defaults to \code{c(1,2)}.
+        }
+        
+        \item{\code{frame.plot}}{
+            Logical value indicating whether a box should be drawn
+            around the plot; useful in combination with \code{axes=c(1,2)} and
+            \code{is.plot.grid=FALSE} for uncluttered plots.
+            
+            Defaults to \code{TRUE}.
+        }
+            
+        \item{\code{canvas}}{
+            A character string describing the type of plotting canvas to use.
+            Possible values are \code{"weibull"} and \code{"lognormal"}. By 
+            setting this argument according to subsequent fit distrubitions,
+            the fits will display as a straight line. See also argument \code{log}.
+
+            Defaults to \code{"weibull"}.
+        }
         \item{\code{cex.points}}{
             A number describing the relative size of the datapoint glyphs.
 
@@ -111,7 +137,8 @@
         \item{\code{col}}{
             An integer or character string describing the color of a
             graphical entity.
-            See function \code{\link[grDevices]{colors}} for available colors.
+            See \code{\link[grDevices]{colors}} of the \pkg{grDevices} package
+            for available colors.
 
             Defaults to \code{"black"}.
         }
@@ -158,10 +185,8 @@
         }
         \item{\code{in.legend.gof}}{
             Logical value controlling the inclusion of goodness-of-fit
-            indicators in the legend. Note that this does \emph{not} prohibit
-            calculation of sometimes time consuming \code{prr} values, it only
-            prevents inclusion in the legend.
-            %% TODO: check if this is still valid (prr <-> pve <-> AbPval)
+            indicators in the legend. 
+            %% Note that this does \emph{not} prohibit calculation of sometimes time consuming \code{prr} values, it only prevents inclusion in the legend.
 
             Defaults to \code{TRUE}.
         }
@@ -211,18 +236,21 @@
         }
         \item{\code{log}}{
             A character string describing the type of plotting canvas to use.
-            Possible values are \code{"x"} (weibull canvas), \code{"xy"}
-            (lognormal canvas), \code{""} (weibull Y axis, linear X axis)
-            and \code{"y"} (lognormal Y axis, linear X axis).
+            This argument is internally set according to the \code{canvas}
+            argument, so one should not set this directly.
+            
+            %% Possible values are \code{"x"} (Weibull canvas), \code{"xy"}
+            %% (lognormal canvas), \code{""} (Weibull Y axis, linear X axis)
+            %% and \code{"y"} (lognormal Y axis, linear X axis). 
 
-
-            Defaults to \code{"x"}, Weibull canvas.
+            Defaults to \code{"x"}, resulting in Weibull canvas.
             For contour plots, \code{log} is always \code{""} and cannot be set.
         }
         \item{\code{lty}}{
             An integer describing the line type of both the fitted
             line and the confidence bounds, if any.
-            See function \code{\link[graphics]{par}} for available line types.
+            See \code{\link[graphics]{par}} of the \pkg{graphics} package 
+            for available line types.
 
             Defaults to \code{1}.
         }
@@ -246,7 +274,7 @@
             A numerical vector of the form \code{c(bottom, left, top, right)}
             which gives the number of lines of margin to be specified on
             the four sides of the plot.
-            See function \code{\link[graphics]{par}} for more info.
+            See \code{\link[graphics]{par}} of the \pkg{graphics} package for more info.
 
             Defaults to \code{c(5.1,4.1,5.1,2.1)}.
         }

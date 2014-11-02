@@ -1,3 +1,17 @@
+2014-11-02 Jurgen Symynck <jusy@openreliability.org>
+
+        * upgraded abrem 0.1.21 to 0.1.23 (development version)
+		* many bugfixes, manual cleanup;
+		* Uses packages debias 0.1.9 (available on r-forge) and abremPivotals 0.2.9 (available on github, commit ID 2b08a98): This release uses the getPPP(na.rm=...) option that will be dropped in future abremPivotals and abrem releases.
+		* Added "canvas" option to specify type of plotting canvas to be used (option "log" is still present). The canvas type now shows in the plot.
+		* Added "axes" option to omit specified axes on the plot, added "frame.plot" argument to plot a frame around the plot. The default plot now only has lower and left axes.
+		
+		* Abrem.R (Abrem): dropped support for "time" and "fail" arguments, in favor of the default "x", to be consistent with abremPivotals and abremDebias.
+		* calculateSingleFit.R (calculateSingleFit):
+		dropped support for "rr2", "mle2", "mle3", "mle-rba2" and "mle-rba3". The decision was made that the C++ code should be the default, while the R code (lm(), optim(), ...) is only provided as an example. "rr2" has been replaced by adding an option "use.lm" in argument "method.fit".
+		* calculateSingleConf.R (calculateSingleConf):
+		Added support for limiting the confidence bounds to the unreliability levels to those that were explicitly passed using argument 'unrel'.
+
 2014-10-11 Jurgen Symynck <jusy@openreliability.org>
 
         * upgraded abrem 0.1.14 to 0.1.21:

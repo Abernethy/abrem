@@ -69,7 +69,6 @@ legendConf <- function(fit,conftype,opadata,...){
                     }else NULL
                 }
                 unlist(lapply(fit$conf$blives,for.each.blicon),FALSE)
-                    # TODO: replace by do.call ?
             }else{NULL}
         }
     }else{NULL}

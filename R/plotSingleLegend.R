@@ -35,22 +35,23 @@
 plotSingleLegend <- function(le,x,y){
     if(identical(label <- le$label,""))label <- NULL
     if(is.null(le$legend))le$legend <- ""
+#    if(is.null(le$legend) || any(sapply(le$legend,function(fi)is.null(fi)))){
+#        le$legend <- ""
+#    }    
     legend(
         x=x,
         y=y,
         legend=le$legend,
         title=label,
-#                title.col=le$lcol,
         cex = le$legend.text.size,
         bg = "white",
         lty = unlist(le$lty),
         lwd = unlist(le$lwd),
         pch = unlist(le$pch),
         col = unlist(le$col),
-#                inset=0.1,
         text.col = "black",
         xpd=TRUE
-#                merge = TRUE
         )
         # TODO: Warning: unlist coerces numeric colors to character!
+        # maybe as.graphicsAnnot to the rescue?
 }

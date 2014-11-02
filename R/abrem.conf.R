@@ -34,7 +34,6 @@
 
 abrem.conf <- function(x,which="all",...){
     # x is a single Abrem or a list of Abrem objects
-#    supported_blifeconf  <-  c("mcpivotals","bbb")
     if(missing(x)){
         stop('Argument \"x\" is missing.')
     }else{
@@ -44,12 +43,10 @@ abrem.conf <- function(x,which="all",...){
             "a list of \"abrem\" objects.')
         }
         dr <- findMaxDataRange(x,0)
-            # for reasonably large confidence bounds
         calculateConfsInAbrem <- function(abrem){
             if(!is.null(abrem$fit)){
                 abrem$fit <- lapply(abrem$fit,calculateSingleConf,
                     opadata=abrem$options,datarange=dr,...)
-                    # TODO: add error detection
             }
             abrem
         }

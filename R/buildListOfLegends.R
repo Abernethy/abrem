@@ -34,18 +34,13 @@
 
 buildListOfLegends <- function(abrem,v,isplotlegend,...){
     ret <- NULL
-    if(!is.null(abrem$fit) && any(sapply(abrem$fit,function(fi)!is.null(fi)))){
-            # TODO:
-#            if(!is.null(abrem$fit)){
-        # check if any non-NULL list holds only NULL items
-        # this is needed for dealing with failed fit attempts
-        # that currently take the form of
-        # abrem$fit[i] <- list(NULL)
-#            ret <- unlist(lapply(x$fit,buildSingleFitLegend,
-#                opadata=x$options,...),FALSE)
-        ret <- lapply(abrem$fit,buildSingleFitLegend,
+    emptyfits <- sapply(abrem$fit,function(fi)is.null(fi))
+    if(!is.null(abrem$fit) && sum(!emptyfits > 0)){
+        ret <- lapply(abrem$fit[!emptyfits],buildSingleFitLegend,
             opadata=abrem$options,...)
+            # TODO: test if abrem$fit[!emptyfits] is to be used and not abrem$fit[[!emptyfits]]
     }else{
+        # no fits present in the abrem object
         if(abrem$options$is.plot.legend && isplotlegend){
             ret <- list(buildSingleDataLegend(abrem,opadata=abrem$options,...))
             if(v >= 1)message(

@@ -143,7 +143,7 @@ Prob2.1Object   <- Abrem(Prob2.1Data, col="blue",
 Prob2.1Object   <- abrem.fit(Prob2.1Object)
 P2.2Failures    <- c(9.0,6.0,1.1,20.0,65.0)
 P2.2Suspensions <- c(14.6,7.0,8.0)
-Prob2.2Object   <- Abrem(fail=P2.2Failures,
+Prob2.2Object   <- Abrem(P2.2Failures,
     susp=P2.2Suspensions, col="red", label="Problem 2-2")
 Prob2.2Object   <- abrem.fit(Prob2.2Object)
 plot.abrem(list(Prob2.2Object, Prob2.1Object),
@@ -362,11 +362,11 @@ for that particular mode.
 earlyda <- da[1:10]
 midda   <- da[11:131]
 endda   <- da[132:200]
-Abrem_early <- Abrem(fail=earlyda,susp=c(midda,endda),
+Abrem_early <- Abrem(earlyda,susp=c(midda,endda),
     col="orange",label="Early data")
-Abrem_mid   <- Abrem(fail=midda,  susp=c(earlyda,endda),
+Abrem_mid   <- Abrem(midda,  susp=c(earlyda,endda),
     col="magenta",label="Middata")
-Abrem_end   <- Abrem(fail=endda,  susp=c(earlyda,midda),
+Abrem_end   <- Abrem(endda,  susp=c(earlyda,midda),
     col="blue",label="Enddata")
 earlyfit <- abrem.fit(Abrem_early,dist="weibull3p")
 midfit   <- abrem.fit(Abrem_mid,  dist="weibull3p")
@@ -415,7 +415,7 @@ C of the text using the very small example data set found there.
 \begin{center}
 <<block11,echo=TRUE,fig=TRUE,tidy=FALSE>>=
 library(abrem)
-mle_ex <- Abrem(fail=c(1500,2250,4000,4300,7000),susp=c(1750,5000))
+mle_ex <- Abrem(c(1500,2250,4000,4300,7000),susp=c(1750,5000))
 mle_ex <- abrem.fit(mle_ex, method.fit=c("rr","xony"))
 mle_ex <- abrem.fit(mle_ex, method.fit="mle", col="blue")
 mle_ex <- abrem.fit(mle_ex, method.fit="mle-rba", col="steelblue")

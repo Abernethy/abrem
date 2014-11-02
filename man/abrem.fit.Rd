@@ -6,7 +6,12 @@
 \alias{P-value}
 \alias{AbPval}
 \alias{threshold}
-\alias{in.legend}
+\alias{xony}
+\alias{yonx}
+\alias{rr}
+\alias{mle}
+\alias{mle-rba}
+\alias{use.lm}
 
 \title{
     Fit Distributions to \code{Abrem} Objects
@@ -57,47 +62,47 @@
             Defaults to \code{c("rr","xony")}.
             
             \itemize{
-                \item \code{"rr"}: Rank Regression (RR). The parameters are calculated
-                using least square linear regression on the probability plot positions that
-                were calculated from the (life-)time observations during the creation of the
+                \item \code{"rr"}: Rank Regression (RR). The parameters are
+                calculated using least square linear regression on the
+                probability plot positions that were calculated fro
+                the (life-)time observations during the creation of the
                 \code{Abrem} object (see option \code{\link{ppos}} and
-                function \code{\link{Abrem}}). The \code{"rr"} argument invokes
-                the \code{\link[stats]{lm}} function of the \pkg{stats} package,
-                and its return object can be retrieved from the \code{abrem}
+                function \code{\link{Abrem}}). 
+                                                 
+                By default, the fast C++ compiled linear regression code in 
+                \code{\link[abremPivotals]{lslr}} from the \pkg{abremPivotals}
+                package is used, the same code for the Monte Carlo pivotal
+                confidence bound calculation.
+
+                \item \code{"use.lm"}: This argument invokes
+                the \code{\link[stats]{lm}} function of the \pkg{stats} package
+                for calculating the fit parameters instead of the C++ code
+                from the \pkg{abremPivotals} package . 
+                \code{lm}'s return object can be retrieved from the \code{abrem}
                 object under \code{x$fit[[i]]$lm} where \code{x} is the return
                 object of \code{abrem.fit} and \code{i} the number of the fit 
-                in the abrem object.
-                                 
-                By passing \code{"rr2"}, one can explicitly use the fast C++ compiled 
-                linear regression code from \pkg{abremPivotals} that is also
-                used for the Monte Carlo pivotal confidence bound calculation.
-                
+                in the \code{abrem} object.
+           
                 If Rank Regression is used then it 
                 is \emph{mandatory} to additionally specify either X-on-Y or
                 Y-on-X regression.
                 
                 \item \code{"xony"},\code{"yonx"}: Differentiate between X-on-Y and Y-on-X
-                regression, respectively. For rank regression in lifetime analysis,
+                regression, respectively. For Rank Regression in lifetime analysis,
                 it is best practice to use the X values ((life-)time observations)
                 as the response variables whose horizontal distance to the fit line
                 must be minimized, and the Y values (unreliabilities) as the
                 explanatory variable.
 
                 \item \code{"mle"}: Maximum Likelihood Estimation (MLE), using
-                many functions of the \pkg{debias} package.
+                many functions from the \pkg{debias} package.
 
-                \item \code{"mle-rba"}: Maximum Likelihood Estimation with Reduced Bias
-                based on the median bias of the distributions MLE.
+                \item \code{"mle-rba"}: Maximum Likelihood Estimation with
+                Reduced Bias based on the median bias of the distributions MLE.
                 This options uses functions \code{\link[debias]{RBAbeta}} and 
                 \code{\link[debias]{RBAsigma}}of the
                 \pkg{debias} package.
             }
-
-            Similar to Rank Regression, by passing \code{"mle2"} or
-            \code{"mle2-rba"} one can explicitly use fast C++ compiled code
-            from the \pkg{debias} package. Support for these extra
-            implementations (in the case of MLE) might be removed in
-            future versions.
         }
 
         Additionally, one can pass any options available from \code{options.abrem},
@@ -148,7 +153,7 @@
 %\section{To Do}{
 %    \itemize{
 %        \item Research the effect of \code{NA} values in the (life-)time
-%            observations of the \code{abrem} argument when not using rank regression.
+%            observations of the \code{abrem} argument when not using Rank Regression.
 %    }
 %}
 \seealso{
@@ -199,15 +204,15 @@ midda   <-abrem_mix1[11:131]
 endda   <-abrem_mix1[132:200]
 da       <-Abrem(abrem_mix1,col="gray",pch=1,
             label="Complete, unaltered dataset")
-da21     <-Abrem(fail=endda,susp=c(earlyda,midda),col="black",pch=19)
-da22     <-Abrem(fail=endda,susp=c(earlyda,midda),col="blue",pch=3)
-da23     <-Abrem(fail=endda,susp=c(earlyda,midda),col="green3",pch=4)
+da21     <-Abrem(endda,susp=c(earlyda,midda),col="black",pch=19)
+da22     <-Abrem(endda,susp=c(earlyda,midda),col="blue",pch=3)
+da23     <-Abrem(endda,susp=c(earlyda,midda),col="green3",pch=4)
 da21 <- abrem.fit(da21,
     label="threshold=FALSE",dist="weibull3p",threshold=FALSE)
 da22 <- abrem.fit(da22,
     label="threshold=TRUE",dist="weibull3p",threshold=TRUE)
 da23 <- abrem.fit(da23,
-    label="threshold=5000",dist="weibull3p",threshold=1800)
+    label="threshold=1800",dist="weibull3p",threshold=1800)
 plot.abrem(list(da,da21,da22,da23),xlim=c(10,1e5),
     main="Threshold parameter usage")
 }

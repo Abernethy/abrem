@@ -32,7 +32,8 @@
 # |  http://www.r-project.org/        |
 # +-----------------------------------+
 
-findRangeInAbrem <- function(abrem,v,log=""){
+#findRangeInAbrem <- function(abrem,v,log=""){
+findRangeInAbrem <- function(abrem,v){
         if(!is.null(abrem$data)){
             if(!is.null(abrem$data$time)){
                 ret <- data.frame(xrange=range(abrem$data$time,na.rm=TRUE))

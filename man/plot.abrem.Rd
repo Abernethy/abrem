@@ -33,18 +33,18 @@
     in this way are applied to all graphical elements of the plot, overriding
     any previously supplied options.
     
-    One can pass a list of \code{abrem} objects to \code{\link{plot.abrem}}; in
+    One can pass a \emph{list} of \code{abrem} objects to \code{\link{plot.abrem}}; in
     that case it is mandatory to use the full method name: \code{plot.abrem(\dots)}
     and not \code{plot(\dots)}.
     
     The calculated Weibull or lognormal distribution fits are plotted
     on Weibull probability paper by default, but by passing the argument
-    \code{\link{log} = "xy"} to the function, lognormal paper is used
+    \code{\link{canvas} = "lognormal"} to the function, lognormal paper is used
     (see \code{\link{options.abrem}}).
     
-    When a \emph{list} of abrem objects is passed, the plot window is generated
-    with the options of the first \code{abrem} object in the list.
-    % TODO: list these options
+    Currently, when a \emph{list} of abrem objects is passed, 
+    the plot window is generated with the options of the first \code{abrem}
+    object in the list.
         
 %    A thin dashed line appears close to the fitted line (if any) when confidence
 %    are present and plotted.  

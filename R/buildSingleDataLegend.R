@@ -45,22 +45,26 @@ buildSingleDataLegend <- function(x,opadata,...){
     removeBadLegendEntries <- function(e){
         if(!is.null(e))!is.na(e$legend) else FALSE
     }
-    if(length(li)>0)li <- li[sapply(li,removeBadLegendEntries)]
-    else li <- ""
-        # remove list items where the legend text = NA
-    fu  <- function(x,i){if(i %in% names(x))x[[i]]}
-    fu2 <- function(i,x){lapply(x,fu,i=i)}
-    items <- c("legend","lty","lwd","pch","col")
-    le  <- lapply(items,fu2,li)
-    names(le) <- items
-    if(identical(label <- opadata$label,""))label <- NULL
-    le$rect <- legend(
-        "bottomright",
-        legend=le$legend,
-        title=label,
-        cex = opadata$legend.text.size,
-        plot=FALSE)$rect
-    le$label <- opadata$label
-    le$legend.text.size <- opadata$legend.text.size
+    if(length(li)>0){
+        li <- li[sapply(li,removeBadLegendEntries)]
+        ### Oct 2014:
+        ### moved the following code inside the if(length(li)>0){statement
+        fu  <- function(x,i){if(i %in% names(x))x[[i]]}
+        fu2 <- function(i,x){lapply(x,fu,i=i)}
+        items <- c("legend","lty","lwd","pch","col")
+        le  <- lapply(items,fu2,li)
+        names(le) <- items
+        if(identical(label <- opadata$label,""))label <- NULL
+        le$rect <- legend(
+            "bottomright",
+            legend=le$legend,
+            title=label,
+            cex = opadata$legend.text.size,
+            plot=FALSE)$rect
+        le$label <- opadata$label
+        le$legend.text.size <- opadata$legend.text.size
+    }else le <- NULL
+    #else li <- ""
+    # remove list items where the legend text = NA
     le
 }

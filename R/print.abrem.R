@@ -40,9 +40,6 @@ print.abrem <- function(x,...){
     if(!is.null(x$n))    cat("\n$n :",x$n)
     if(!is.null(x$fail)) cat("\n$fail :",x$fail)
     if(!is.null(x$susp)) cat("\n$susp :",x$susp,"\n")
-    # TODO: check what to do with mentionin this data at the x$fit[[i]] level
-
-
     if(!is.null(x$options)){
         cat("\n$options\n ")
         if((le <- length(x$options)) >=1){

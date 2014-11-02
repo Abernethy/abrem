@@ -37,13 +37,14 @@ abrem.fit <- function(x,...){
     supported_dist <- c(
         "weibull","weibull2p","weibull3p",
         "lognormal","lognormal2p","lognormal3p")
-    supported_fit <-  c("rr","rr2","mle","mle2","mle3","mle-rba","mle2-rba","mle3-rba")
+    # supported_fit <-  c("rr","rr2","mle","mle2","mle3","mle-rba","mle2-rba","mle3-rba")
+    supported_fit <-  c("rr","mle","mle-rba")
     if(missing(x)){
         stop("Argument \"x\" is missing.")
     }else{
         if(identical(class(x),"abrem")) x <- list(x)
         if(!all(sapply(x,function(x)identical(class(x),"abrem")))){
-            stop("\"x\" argument is not of class \"abrem\" or ",
+            stop("Argument \"x\" is not of class \"abrem\" or ",
             "a list of \"abrem\" objects.")
         }
         # from here on, x is a list of one or more abrem objects
@@ -54,7 +55,7 @@ abrem.fit <- function(x,...){
         opa <- modifyList(opa, list(...))
         if(is.null(opa$dist)){
             if(opa$verbosity >= 1)message("abrem.fit : ",
-                ": Target distribution defaults to weibull2p.")
+                "Target distribution defaults to weibull2p.")
                 opa$dist <- "weibull2p"
         }else{
             if(length(opa$dist)>1)
@@ -68,25 +69,24 @@ abrem.fit <- function(x,...){
             }else{
                 if(is.null(opa$method.fit)){
                     if(opa$verbosity >= 1)message("abrem.fit : ",
-                        ': Fit method defaults to \"rr\", \"xony\".')
+                        'Fit method defaults to \"rr\", \"xony\".')
                         opa$method.fit <- c("rr","xony")
                 }else{
                     fits <- length(which(opa$method.fit %in% supported_fit))
                     if(fits > 1){
                         stop("Only one fit method should be supplied.")
                     }else{
-                        if(any(c("rr","rr2") %in% tolower(opa$method.fit))){
+                        if("rr" %in% tolower(opa$method.fit)){
                             if(!any(c("xony","yonx") %in%
                                 tolower(opa$method.fit))){
                                 if(opa$verbosity >= 1){
                                     message("abrem.fit : ",
-                                        ': Fit method \"rr\" defaults to \"xony\"')
+                                        'Fit method \"rr\" defaults to \"xony\"')
                                     opa$method.fit <- c(opa$method.fit,"xony")
                                 }
                             }
                         }
                         x <- lapply(x,calculateSingleFit,...)
-                        # TODO: only one object or list of abrem objects?
                     }
                 }
             }

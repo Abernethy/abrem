@@ -39,20 +39,12 @@ plotSingleDataSet <- function(x,isplotppp,...){
         if(!is.null(x$data) &&
             !is.null(ti <- x$data$time) &&
             !is.null(ra <- x$data[,paste0("ppp.",tolower(opadata$ppos[1]))])){
-            # TODO: add support for plotting all ppp columns, not just the first one
-            # this will need added support for vectors of col, lwd, lty, pch, ...
-#                if(opadata$log %in% c("x","xy","yx")){
-#                    replace
-#                }
             t0 <- 0
             if(is.logical(opadata$threshold))if(opadata$threshold)
                 warning ("opadata$threshold is a logical value but numeric value was expected. Proceeding...")
             if(is.numeric(opadata$threshold))t0 <- opadata$threshold
             points(ti-t0,F0inv(ra,opadata$log),pch = opadata$pch,
                 col = opadata$col,lwd = opadata$lwd.points,cex=opadata$cex.points)
-                # option "log" should only be set and read from either
-                # the arguments of plot.abrem
-                # Other instances should be ignored
         }else{
             stop("This Abrem object contains no probability plot positions.")
         }

@@ -107,26 +107,35 @@ buildSingleFitLegend <- function(fit,opadata,...){
         removeBadLegendEntries <- function(e){
             if(!is.null(e))!is.na(e$legend) else FALSE
         }
-        if(length(li)>0)li <- li[sapply(li,removeBadLegendEntries)]
-        else li <- ""
+        if(length(li)>0){
+            li <- li[sapply(li,removeBadLegendEntries)]
+            ### Oct 2014:
+            ### moved the following code inside the if(length(li)>0){statement
+            fu  <- function(x,i){if(i %in% names(x))x[[i]]}
+            fu2 <- function(i,x){lapply(x,fu,i=i)}
+            items <- c("legend","lty","lwd","pch","col")
+            le  <- lapply(items,fu2,li)
+                # above assumes that li is valid
+            names(le) <- items
+            if(identical(label <- opafit$label,""))label <- NULL
+            le$rect <- legend(
+                "bottomright",
+        #                "topright",
+                legend=le$legend,
+                title=label,
+                cex = opafit$legend.text.size,
+        #        inset=0.1,
+        #        merge = TRUE,
+                plot=FALSE)$rect
+            le$label <- opafit$label
+            le$legend.text.size <- opafit$legend.text.size
+        }
+        else le <- NULL
+        #else li <- ""
             # remove list items where the legend text = NA
-        fu  <- function(x,i){if(i %in% names(x))x[[i]]}
-        fu2 <- function(i,x){lapply(x,fu,i=i)}
-        items <- c("legend","lty","lwd","pch","col")
-        le  <- lapply(items,fu2,li)
-        names(le) <- items
-        if(identical(label <- opafit$label,""))label <- NULL
-        le$rect <- legend(
-            "bottomright",
-    #                "topright",
-            legend=le$legend,
-            title=label,
-            cex = opafit$legend.text.size,
-    #        inset=0.1,
-    #        merge = TRUE,
-            plot=FALSE)$rect
-        le$label <- opafit$label
-        le$legend.text.size <- opafit$legend.text.size
+            # Oct 2014: why is else li <-"" here? I assume that when
+            # there is nothing in li then le should be NULL
+
     }
     le
 }

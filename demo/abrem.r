@@ -17,7 +17,6 @@ da <- abrem.fit(da)
 plot.abrem(da,main='Comparing different ranking methods.')
 #readline(prompt = "Hit <RETURN> to see next plot.\n")
 # +-----------------------------------------------------------------------------
-
 da <- Abrem(runif(8,100,1000))
 da <- abrem.fit(da)
 da <- abrem.conf(da)
@@ -28,9 +27,9 @@ plot(da)
 if(require(boot)){
     data(aircondit,aircondit7,package="boot")
     da1  <- abrem.fit(
-        Abrem(time=aircondit$hours,label='\"aircondit\" dataset (package \"boot\")'))
+        Abrem(aircondit$hours,label='\"aircondit\" dataset (package \"boot\")'))
     da2  <- abrem.fit(
-        Abrem(time=aircondit7$hours,label='\"aircondit7\" dataset',col="red",pch=4))
+        Abrem(aircondit7$hours,label='\"aircondit7\" dataset',col="red",pch=4))
     plot.abrem(list(da1,da2),xlim=c(0.01,1e5),
         main='\"aircondit\" dataset (package \"boot\")',
         xlab="Time To Failure (hours)")
@@ -68,26 +67,25 @@ if(require(MASS)){
     data(motors,package="MASS")
     names(motors) <- c("temp","time","event")
     mo <-  list()
-#    mo[[4]] <- NULL #abrem.fit(Abrem(subset(motors,temp==150),
-#        #label="Temp = 150"))
+    mo[[1]] <- abrem.fit(Abrem(subset(motors,temp==150),
+        label="Temp = 150"))
         # note that subset(motors,temp==150) has no failures,
         # so it cannot be analysed by this package yet.
     hc <- rev(rainbow(3,end=4/6))
         # create temperature-like colors
-    mo[[1]] <- abrem.fit(Abrem(subset(motors,temp==170),
+    mo[[2]] <- abrem.fit(Abrem(subset(motors,temp==170),
         label="Temp = 170",col=hc[1],pch=0))
-    mo[[2]] <- abrem.fit(Abrem(subset(motors,temp==190),
+    mo[[3]] <- abrem.fit(Abrem(subset(motors,temp==190),
         label="Temp = 190",col=hc[2],pch=1))
-    mo[[3]] <- abrem.fit(Abrem(subset(motors,temp==220),
+    mo[[4]] <- abrem.fit(Abrem(subset(motors,temp==220),
         label="Temp = 220",col=hc[3],pch=2))
 
     mo <- lapply(mo,abrem.conf)
-
-#    mo[[2]] <- abrem.conf(abrem.fit(Abrem(time=mo[[2]]$time,event=mo[[2]]$status),
+#    mo[[2]] <- abrem.conf(abrem.fit(Abrem(mo[[2]]$time,event=mo[[2]]$status),
 #        col=hc[1],pch=0))
-#    mo[[3]] <- abrem.conf(abrem.fit(Abrem(time=mo[[3]]$time,event=mo[[3]]$status),
+#    mo[[3]] <- abrem.conf(abrem.fit(Abrem(mo[[3]]$time,event=mo[[3]]$status),
 #        col=hc[2],pch=1))
-#    mo[[4]] <- abrem.conf(abrem.fit(Abrem(time=mo[[4]]$time,event=mo[[4]]$status),
+#    mo[[4]] <- abrem.conf(abrem.fit(Abrem(mo[[4]]$time,event=mo[[4]]$status),
 #        col=hc[3],pch=2))
     plot.abrem(mo,xlim=c(5,1e6),main='\"Motors\" dataset (package \"MASS\")')
     options.abrem(def)
@@ -101,9 +99,10 @@ da <- abrem.fit(da,dist="weibull3p",col="steelblue")
 da <- abrem.fit(da,dist="lognormal2p",col="red")
 da <- abrem.fit(da,dist="lognormal3p",col="orange")
 
-plot(da,main="Comparison between weibull and lognormal, two and three parameter")
+plot(da,main="Comparison between Weibull and lognormal, two and three parameter")
 legend("topleft",legend="Weibull plotting canvas",bg="white")
-plot(da,main="Comparison between weibull and lognormal, two and three parameter",log="xy")
+plot(da,main="Comparison between Weibull and lognormal, two and three parameter",
+    canvas="lognormal")
 legend("topleft",legend="Lognormal plotting canvas",bg="white")
 # +-----------------------------------------------------------------------------
 da <- abrem.fit(Abrem(rweibull(5,3,1000)),dist="weibull")
@@ -127,9 +126,9 @@ endda   <-abrem_mix1[132:200]
 for(th in c(FALSE,TRUE)){
     da       <-Abrem(abrem_mix1,col="gray",pch=1,
         label=" abrem_mix1 (Complete, unaltered dataset) ")
-    da21     <-Abrem(fail=earlyda,susp=c(midda,endda),col="black",pch=19)
-    da22     <-Abrem(fail=midda,susp=c(earlyda,endda),col="blue",pch=3)
-    da23     <-Abrem(fail=endda,susp=c(earlyda,midda),col="green3",pch=4)
+    da21     <-Abrem(earlyda,susp=c(midda,endda),col="black",pch=19)
+    da22     <-Abrem(midda,susp=c(earlyda,endda),col="blue",pch=3)
+    da23     <-Abrem(endda,susp=c(earlyda,midda),col="green3",pch=4)
     
     ### without threshold parameter corrected plotting ###
     da21 <- abrem.fit(da21,
@@ -151,9 +150,9 @@ midda   <-abrem_mix1[11:131]
 endda   <-abrem_mix1[132:200]
 da       <-Abrem(abrem_mix1,col="gray",pch=1,
             label=" abrem_mix1 (Complete, unaltered dataset) ")
-da21     <-Abrem(fail=endda,susp=c(earlyda,midda),col="green2",pch=19)
-da22     <-Abrem(fail=endda,susp=c(earlyda,midda),col="green3",pch=3)
-da23     <-Abrem(fail=endda,susp=c(earlyda,midda),col="green4",pch=4)
+da21     <-Abrem(endda,susp=c(earlyda,midda),col="green2",pch=19)
+da22     <-Abrem(endda,susp=c(earlyda,midda),col="green3",pch=3)
+da23     <-Abrem(endda,susp=c(earlyda,midda),col="green4",pch=4)
 da21 <- abrem.fit(da21,
     label='\"End\" data, threshold=FALSE',dist="weibull3p",threshold=FALSE)
 da22 <- abrem.fit(da22,
@@ -166,8 +165,8 @@ plot.abrem(list(da,da21,da22,da23),xlim=c(0.5,1e5),
 ## +----------------------------------------------------------------------------
 fail1 <- c(535,269,1066,788,288)
 fail2 <- c(1043,843,1303,1847,2590)
-da1 <- abrem.fit(Abrem(time=fail1,pch=0,col="blue"))
-da2 <- abrem.fit(Abrem(time=fail2,pch=4,col="red"))
+da1 <- abrem.fit(Abrem(fail1,pch=0,col="blue"))
+da2 <- abrem.fit(Abrem(fail2,pch=4,col="red"))
 
 da1 <- abrem.conf(da1,method.conf.blives="lrb",cl=0.5,
     in.legend.blives=F,is.plot.cb=F,lty=5)

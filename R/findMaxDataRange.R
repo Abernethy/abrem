@@ -38,12 +38,7 @@ findMaxDataRange <- function(x,v,log=""){
     # |     over the (list of) abrem objects      |
     # +-------------------------------------------+
     # x is always a list of abrem object(s)
-    if(all(sapply(x,function(x)identical(class(x),"abrem")))){
-        ret <- do.call("rbind",lapply(x,findRangeInAbrem,v,log))
-    }else{
-        stop("Argument \"x\" is no list of \"abrem\" objects.")
-    }
-    # TODO: the above still needed? because x is always list of abrems?
+    ret <- do.call("rbind",lapply(x,findRangeInAbrem,v))
     if(tolower(log) %in% c("x","xy","yx")){
         # if log scale is to be used then omit zero and negative time values 
         # from the range dataset

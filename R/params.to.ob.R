@@ -67,9 +67,7 @@ params.to.ob <- function(dist, ... ){
         if(all(opa$event==0)){
             stop("Argument \"event\"contains only censored events.")
         }
-        if(any(c("rr","rr2") %in% tolower(opa$method.fit))){
-            # TODO: currently, only the "rr2" method is supported. 
-            # Should result in the same numbers though...
+        if("rr" %in% tolower(opa$method.fit)){
             # TODO: expand with the new abremPivotal argument "aranks"
             if(tolower(dist) %in% c("weibull","weibull2p")){
                 if(!is.null(opa$beta) && !is.null(opa$eta)){
@@ -98,7 +96,7 @@ params.to.ob <- function(dist, ... ){
                 }else{stop("Arguments \"mulog\" and/or \"sigmalog\" not supplied.")}
             }
         }else{
-            stop("Currently, only rank regression is supported.")
+            stop("Currently, only Rank Regression is supported.")
             ret <- NULL
         }
         ret

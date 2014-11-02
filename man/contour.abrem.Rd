@@ -79,8 +79,8 @@ contour(da)
 fail1 <- c(round(rweibull(5,1,1000)))
 fail2 <- c(round(rweibull(8,2,3000)))
 
-da1 <- abrem.fit(Abrem(time=fail1,pch=0,col="red",label="First test batch"))
-da2 <- abrem.fit(Abrem(time=fail2,pch=4,col="blue",label="Second test batch"))
+da1 <- abrem.fit(Abrem(fail1,pch=0,col="red",label="First test batch"))
+da2 <- abrem.fit(Abrem(fail2,pch=4,col="blue",label="Second test batch"))
 
 da1 <- abrem.conf(da1,cl=0.5 ,in.legend=FALSE)
 da1 <- abrem.conf(da1,cl=0.9 ,is.plot.cb=TRUE)

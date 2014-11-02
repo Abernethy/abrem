@@ -56,17 +56,38 @@ calculateSingleConf <- function(fit,opadata,datarange,...){
                     maxi <- max(c((1-(1-opaconf$ylim[2])/10),
                         (1-(1-datarange$yrange[2])/10),0.999))
                     if(opaconf$unrel.n==0){
-                        # assume that the user supplies enough values in the unrel
-                        # vector to display confidence bounds
-                        # this feature is useful in combination with unit testing
-                        # (testthat) of sumerSMITH iported plotting reports
+                        if(length(opaconf$unrel>=1)){
+                            if(any(c(opaconf$unrel >=1 ,opaconf$unrel <= 0))){
+                            #if(any(c(opaconf$unrel >1 ,opaconf$unrel < 0))){
+                            # theoretically, the subsequent code should be able to deal 
+                            # with 0 and 1 in the unrel vector, but on another note 
+                            # it appears that
+                            # unrel = c() is transformed to opaconf$unrel=0. To catch the latter
+                            # bad input, the slichtly more restrictive if statement is used.
+                                stop("Argument \'unrel\' must contain values from interval ]0,1[.")
+                            }
+                            unrel <- opaconf$unrel[order(opaconf$unrel)]
+
+                            # assume that the user supplies enough values in the unrel
+                            # vector to display confidence bounds
+                            # this feature is useful in combination with unit testing
+                            # (testthat) of sumerSMITH iported plotting reports
+                        }else{
+                            stop("When unrel.n=0, argument \'unrel\' must contain at least one element.")
+                        }
                     }else{
+                        lo <- opaconf$unrel.n -
+#                            length(opaconf$unrel+2)))
+                                # that's a bug... ?
+                            length(opaconf$unrel)-2
+                        if (lo < 1){
+                            stop("Bad combination of \'unrel\' and \'unrel.n\'.\nIncrease \'unrel.n\' and\\or decrease number of elements in \'unrel\'.")
+                        }
                         unrel <- c(F0(seq(F0inv(mini),F0inv(maxi),
                                 # TODO: this isn't right...
     #                        unrel <- c(F0(seq(F0inv(1e-3),
     #                            F0inv(0.999),
-                            length.out=opaconf$unrel.n -
-                            length(opaconf$unrel+2))),
+                            length.out=lo)),
                             opaconf$unrel,0.5,F0(0))
                             # effectively ignoring any ylim
                             # setting per fit.
@@ -227,7 +248,7 @@ calculateSingleConf <- function(fit,opadata,datarange,...){
                                 fit$conf$blives[[i]]$MLEXContour <- list()
                                 fit$conf$blives[[i]]$MLEXContour[[1]] <- con
                                 
-                                retfit <- abrem.fit(Abrem(fail=fail,susp=susp),method.fit=ifelse(is_debias,"mle-rba","mle"))
+                                retfit <- abrem.fit(Abrem(fail,susp=susp),method.fit=ifelse(is_debias,"mle-rba","mle"))
                                 fit$conf$blives[[i]]$MLEXContour$MLEpoint <-
                                     data.frame(Eta=retfit$fit[[1]]$eta,Beta=retfit$fit[[1]]$beta)
 #                                MLEpoint <- data.frame(Eta=fit$Eta,Beta=fit$Beta)
@@ -293,7 +314,7 @@ calculateSingleConf <- function(fit,opadata,datarange,...){
 #                                        "are still experimental.")
 #                                    }
                             if(is.null(fit$data[['ppp',exact=FALSE]])){
-                                message("calculateSingleConf: Currently, only rank regression is supported.")
+                                message("calculateSingleConf: Currently, only Rank Regression is supported.")
                             }else{
 #                                        try(ret <- .Call("pivotalMC",
                                 if(dst=="weibull" && !is.null(r1$fit[[1]]$eta) && !is.null(r1$fit[[1]]$beta)){
