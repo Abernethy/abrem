@@ -1,3 +1,6 @@
+2014-11-11 Jacob Ormerod <jake@openreliability.org>
+		Entering revisions to utilize abremPivotals according to original design will add a fourth development digit to version number
+		0.1.23.1
 2014-11-02 Jurgen Symynck <jusy@openreliability.org>
 
         * upgraded abrem 0.1.21 to 0.1.23 (development version)
