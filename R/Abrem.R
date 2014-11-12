@@ -107,21 +107,37 @@ Abrem <- function(x,...){
         if(opa$verbosity >= 2)message(paste0(
             'Abrem: Adding ',ppos,' ranks to (life-)time observations...'))
         ret$data <<- cbind(ret$data,ppp=NA)
+		
+		## code permitting original intent of getPPP input and return objects
+		## using getPPP input argument of a time-event dataframe		
         if(any(is.na(ret$data$time))){
-            # experimental code, in combination with support in
-            # abremPivotals::gePPP for event vector arguments
+			## if NA's are contained in ret$data$time a pseudo time-vent frame must be created with preservation of torder
+			ev_frame<-data.frame(time=seq(1,length(ret$data$event)),event=ret$data$event)
 
-            ret$data$ppp <<-
-                ###[ret$data$event==1,'ppp'] <<-
-                abremPivotals::getPPP(
-                    x=ret$data$event,
-                    ppos=ppos,na.rm=FALSE)$ppp
+# experimental code, in combination with support in
+# abremPivotals::gePPP for event vector arguments
+##ret$data$ppp <<-
+###[ret$data$event==1,'ppp'] <<-
+##abremPivotals::getPPP(
+##x=ret$data$event,
+##ppos=ppos,na.rm=FALSE)$ppp
         }else{
-            ret$data <<- abremPivotals::getPPP(
-                    x=ret$data$time[ret$data$event==1],
-                    s=ret$data$time[ret$data$event==0],
-                    ppos=ppos,na.rm=FALSE)
+		## if I know ret$data$time does not include NA's, and assuming they are in time order the ret$data$time vector is useful
+		## create a new dataframe object for handling anyway, assures that I won't mess up (or get confused with) the ret$data object
+			ev_frame<-data.frame(time=ret$data$time, event=ret$data$event)
+
+##ret$data <<- abremPivotals::getPPP(
+##x=ret$data$time[ret$data$event==1],
+##s=ret$data$time[ret$data$event==0],
+##ppos=ppos,na.rm=FALSE)
         }
+		## the rest of getPPP handling code is common, whether NA's had been present in ret$data$time or not
+		ppp<-abremPivotals::getPPP(x=ev_frame,ppos=ppos)$ppp
+		sev_frame<-cbind(ev_frame[order(ev_frame$event,decreasing=T),],"ppp"=c(ppp,rep(NA,dim(ev_frame)[1]-length(ppp))))
+		## I don't understand the '<<-' operator, but assume it has to do with object model
+		## in testing I created a ret list object and normal '<-' assignment only worked here
+		ret$data$ppp<<-sev_frame[order(sev_frame$time),3]
+		
         whi <- which(colnames(ret$data)=="ppp")
         colnames(ret$data)[whi] <<- paste0("ppp.",ppos)
             # renaming the added column to include the type of ranking 
