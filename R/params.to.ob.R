@@ -72,11 +72,17 @@ params.to.ob <- function(dist, ... ){
             if(tolower(dist) %in% c("weibull","weibull2p")){
                 if(!is.null(opa$beta) && !is.null(opa$eta)){
                     if(!is.null(opa$ppos)){
-                        ppp <- rep(NA,length(opa$event))
-                        #ppp[opa$event==1] <- abremPivotals::getPPP(x=opa$event,ppos=opa$ppos[1],na.rm=FALSE)$ppp
-                        ppp <- abremPivotals::getPPP(x=opa$event,ppos=opa$ppos[1],na.rm=FALSE)$ppp
-                        ret <- data.frame(time=qweibull(ppp,opa$beta,opa$eta),event=opa$event)
-                            # a good thing that qweibull deals nicely with NA's!
+##ppp <- rep(NA,length(opa$event))
+#ppp[opa$event==1] <- abremPivotals::getPPP(x=opa$event,ppos=opa$ppos[1],na.rm=FALSE)$ppp
+##ppp <- abremPivotals::getPPP(x=opa$event,ppos=opa$ppos[1],na.rm=FALSE)$ppp
+##ret <- data.frame(time=qweibull(ppp,opa$beta,opa$eta),event=opa$event)
+# a good thing that qweibull deals nicely with NA's!
+						torder<-seq(1,length(opa$event))
+						ev_frame<-data.frame(time=torder,event=opa$event,torder=torder)
+						ppp<- abremPivotals::getPPP(x=ev_frame[,1:2],ppos=opa$ppos)$ppp
+						sev_frame<-event_frame[order(event_frame$event,decreasing=T),]
+						sev_frame$time<-c(qweibull(ppp,opa$beta,opa$eta), rep(NA,length(torder)-length(ppp)))
+						ret<-sev_frame[order(sev_frame$torder),1:2]
                     }else{
                         stop("Argument \"ppos\" is missing; no ranking method supplied.")
                     }
@@ -85,11 +91,18 @@ params.to.ob <- function(dist, ... ){
             if(tolower(dist) %in% c("lognormal","lognormal2p")){
                 if(!is.null(opa$mulog) && !is.null(opa$sigmalog)){
                     if(!is.null(opa$ppos)){
-                        ppp <- rep(NA,length(opa$event))
-                        #ppp[opa$event==1] <- abremPivotals::getPPP(x=which(opa$event==1),#s=which(opa$event==0),
-                        ppp <- abremPivotals::getPPP(x=which(opa$event==1),#s=which(opa$event==0),
-                            ppos=opa$ppos[1],na.rm=FALSE)$ppp
-                        ret <- data.frame(time=qlnorm(ppp,opa$mulog,opa$sigmalog),event=opa$event)
+##ppp <- rep(NA,length(opa$event))
+#ppp[opa$event==1] <- abremPivotals::getPPP(x=which(opa$event==1),#s=which(opa$event==0),
+##------------- was the line below ever functional????----------------------
+##ppp <- abremPivotals::getPPP(x=which(opa$event==1),#s=which(opa$event==0),
+##    ppos=opa$ppos[1],na.rm=FALSE)$ppp
+##ret <- data.frame(time=qlnorm(ppp,opa$mulog,opa$sigmalog),event=opa$event)
+						torder<-seq(1,length(opa$event))
+						ev_frame<-data.frame(time=torder,event=opa$event,torder=torder)
+						ppp<- abremPivotals::getPPP(x=ev_frame[,1:2],ppos=opa$ppos)$ppp
+						sev_frame<-event_frame[order(event_frame$event,decreasing=T),]
+						sev_frame$time<-c(qlnorm(ppp,opa$mulog,opa$sigmalog), rep(NA,length(torder)-length(ppp)))
+						ret<-sev_frame[order(sev_frame$torder),1:2]
                     }else{
                         stop("Argument \"ppos\" is missing; no ranking method supplied.")
                     }
@@ -105,3 +118,7 @@ params.to.ob <- function(dist, ... ){
         ret <- NULL
     }
 }
+## cannot call this linearPPP since it could not be used in place of getPPP as input to lslr
+
+linearPoints<-params.to.ob
+## note: with suspensions as NA's this linearPoints return object could not be used as argument to either getPPP or mlefit.
