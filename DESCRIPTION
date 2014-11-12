@@ -1,7 +1,7 @@
 Package: abrem
 Type: Package
 Title: Abernethy Reliability Methods
-Version: 0.1.23
+Version: 0.1.23.1
 Date: November 02, 2014
 Author: Jurgen Symynck <jusy@openreliability.org>
 Maintainer: Jurgen Symynck <jusy@openreliability.org>
