@@ -80,7 +80,7 @@ params.to.ob <- function(dist, ... ){
 						torder<-seq(1,length(opa$event))
 						ev_frame<-data.frame(time=torder,event=opa$event,torder=torder)
 						ppp<- abremPivotals::getPPP(x=ev_frame[,1:2],ppos=opa$ppos)$ppp
-						sev_frame<-event_frame[order(event_frame$event,decreasing=T),]
+						sev_frame<-ev_frame[order(ev_frame$event,decreasing=T),]
 						sev_frame$time<-c(qweibull(ppp,opa$beta,opa$eta), rep(NA,length(torder)-length(ppp)))
 						ret<-sev_frame[order(sev_frame$torder),1:2]
                     }else{
@@ -100,7 +100,7 @@ params.to.ob <- function(dist, ... ){
 						torder<-seq(1,length(opa$event))
 						ev_frame<-data.frame(time=torder,event=opa$event,torder=torder)
 						ppp<- abremPivotals::getPPP(x=ev_frame[,1:2],ppos=opa$ppos)$ppp
-						sev_frame<-event_frame[order(event_frame$event,decreasing=T),]
+						sev_frame<-ev_frame[order(ev_frame$event,decreasing=T),]
 						sev_frame$time<-c(qlnorm(ppp,opa$mulog,opa$sigmalog), rep(NA,length(torder)-length(ppp)))
 						ret<-sev_frame[order(sev_frame$torder),1:2]
                     }else{
