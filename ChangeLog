@@ -1,3 +1,7 @@
+2014-11-13 Jacob Ormerod <jake@openreliability.org>
+		0.1.23.2
+		Revision to lslr call in calculateSingleFit permits strict validation to be maintained in abremPivotals::lslr
+		without adjusting for uncertain assumptions about entering argument.
 2014-11-11 Jacob Ormerod <jake@openreliability.org>
 		Entering revisions to utilize abremPivotals according to original design will add a fourth development digit to version number
 		0.1.23.1
