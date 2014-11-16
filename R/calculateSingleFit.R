@@ -238,10 +238,17 @@ calculateSingleFit <- function(x,...){
 ## This is the only call in all of package abrem to abremPivotals::lslr
 ## A new dataframe object is created from the data in the fit object so that
 ## adjustments can be made here assuring proper arguments arrive at C++ call
-## lslr will simply raise a stop/error if any NA's are present.				
+## lslr will simply raise a stop/error if any NA's are present.	
+
+			## check for location of ppp column is done here only because Jacob is 
+			## uncertain of column ordering, or potential changes elsewhere in code,
+			## This can be simplified if Jurgen is sure of location.
 				 ppp_col<- which ( (tolower(names(x$fit[[i]]$data )) %in% 
 				  c("ppp","ppp.benard","ppp.beta","ppp.mean",
 				  "ppp.hazen","ppp.km","ppp.kaplan-meier","ppp.blom")))
+			## na.omit can be used here because the source of the x$fit[[i]]$data is known.
+			## if placed in abremPivotals package alteration of someone else's use of NA
+			## would be an improper assumption.	Appearance of NA there must be stopped as an error.
 				 lslr_frame<-na.omit(data.frame(time=x$fit[[i]]$data$time,ppp=x$fit[[i]]$data[ppp_col]))
                 try(ret <- abremPivotals::lslr(
                     lslr_frame,

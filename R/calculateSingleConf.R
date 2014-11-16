@@ -325,9 +325,24 @@ calculateSingleConf <- function(fit,opadata,datarange,...){
                                     Scale <- r1$fit[[1]]$mulog
                                     Shape <- r1$fit[[1]]$sigmalog
                                 }
+						## This is the only call in all of package abrem to abremPivotals::pivotalMC
+						## A new dataframe object is created from the data in the fit object so that
+						## adjustments can be made here assuring proper arguments arrive at C++ call
+						## pivotalMC will simply raise a stop/error if any NA's are present.	
+
+							## check for location of ppp column is done here only because Jacob is 
+							## uncertain of column ordering, or potential changes elsewhere in code,
+							## This can be simplified if Jurgen is sure of location.
+								 ppp_col<- which ( (tolower(names(fit$data)) %in% 
+								  c("ppp","ppp.benard","ppp.beta","ppp.mean",
+								  "ppp.hazen","ppp.km","ppp.kaplan-meier","ppp.blom")))
+							## na.omit can be used here because the source of the fit$data is known.
+							## if placed in abremPivotals package alteration of someone else's use of NA
+							## would be an improper assumption.	Appearance of NA there must be stopped as an error.							  
+								 pivotal_frame<-na.omit(data.frame(time=fit$data$time,ppp=fit$data[ppp_col]))
 
                                 try(ret <- abremPivotals::pivotalMC(
-                                    x=na.omit(fit$data),
+                                    x=pivotal_frame,
                                     dist=dst,
                                     reg_method=ifelse("xony" %in% tolower(opaconf$method.fit),"xony","yonx"),
                                     r2=0.0,CL=opaconf$cl,
